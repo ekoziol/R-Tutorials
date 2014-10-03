@@ -1,0 +1,53 @@
+---
+title: "Introduction to DataFrames Tutorial-2"
+author: "Eric Koziol"
+date: "Friday, October 03, 2014"
+output: html_document
+---
+
+##What is a Data Frame?
+A Data Frame in R is a special way of representing tabular data within a signle variable.  It has the added benefit of allowing us to access columns by name and filtering data based on values.
+
+##Using Data Frames
+R comes in with some built in datasets.  Let's open up the mtcars dataset which contains information about some cars rated by MotorTrend Magazine in the 1970's.
+
+```{r}
+#load the data set
+data(mtcars)
+
+#you can access the dataset via mtcars but let's assign it to a variable to view some of the data
+cars <- mtcars
+```
+
+If you look in your environment window, you will notice a variable Data variable named cars.  It should have 32 observations with 11 variables.  Click on cars to view the mtcars data. Alternatively, we can view the data by typing 'cars' (no quotes) into the R Console.
+
+```{r}
+cars
+```
+
+###Accessing Data
+In order to do useful things with Data Frames we need to be able to access the data.  To access a particular column of data we simply write the variable name followed by $ followed by the column name.  For instance, to get a list of the horsepower for each car we would type:
+
+```{r}
+cars$hp
+```
+
+Notice that this is a single column array, there are no car names attached to the data.  If we view the cars Data Frame we also notice that there is no column name for the car names.  This is because instead of labeling the rows 1,2,3... the rows are labeled by the car name.  To get a list of all of the car names type
+
+```{r}
+rownames(cars)
+```
+
+If we were interested in unique values for engine cylinders were in this list we would type:
+
+```{r}
+unique(cars$cyl)
+```
+
+We could also plot a quick and dirty histogram of the distribution of cylinders within this dataset by typing:
+
+```{r}
+hist(cars$cyl)
+```
+
+While this isn't the prettiest plot, it gets the idea across quickly.  Much prettier plotting options will be shown in later tutorials.
