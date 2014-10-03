@@ -1,9 +1,7 @@
----
-title: "Better Data Analysis with R"
-author: "Eric Koziol"
-subtitle: Installing R and RStudio
-output: html_document
----
+
+#Better Data Analysis with R
+##Installing R and RStudio
+###*Eric Koziol*
 
 ##What is R?
 R is a very powerful open source statistical programming language that allows for robust and reproducible
