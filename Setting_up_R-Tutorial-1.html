@@ -66,13 +66,13 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="installing-r" class="section level2">
 <h2>Installing R</h2>
 <p>To install R, visit this web address:</p>
-<p><a href="http://cran.rstudio.com/">http://cran.rstudio.com/</a></p>
+<p><a href="http://cran.rstudio.com/" class="uri">http://cran.rstudio.com/</a></p>
 <p>and select the appropriate operating system that you are using. Then following the instructions. This will give you the shell of R which can run any myriad of R code.</p>
 </div>
 <div id="installing-rstudio" class="section level2">
 <h2>Installing RStudio</h2>
 <p>While it nice to run code just with R, it is much better to develop code and perform data anlysis in an Integrated Development Environment (IDE). The best IDE for R is called RStudio and can be downloaded here:</p>
-<p><a href="http://www.rstudio.com/products/rstudio/#Desk">http://www.rstudio.com/products/rstudio/#Desk</a></p>
+<p><a href="http://www.rstudio.com/products/rstudio/#Desk" class="uri">http://www.rstudio.com/products/rstudio/#Desk</a></p>
 <p>RStudio has four main windows:</p>
 <ol style="list-style-type: decimal">
 <li>The top left window is where you can view and edit code files. You can also run code file from here by clicking the run button in the upper right. Alternatively you can bring variables into your environment by pressing the source button.</li>
@@ -84,10 +84,11 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="installing-packages-for-r" class="section level2">
 <h2>Installing packages for R</h2>
 <p>From what we have downloaded so far, we have a somewhat limited shell of R commands available to us. In order to greatly increase the usefulness and power of R, we need to install what are called packages. Packages are libraries of software code that contain groups of commands that we can use. Anyone can build and deploy R packages including you! The entire list of R packages that have been deployed to CRAN (the makers of RStudio) can be found here:</p>
-<p><a href="http://cran.rstudio.com/">http://cran.rstudio.com/</a></p>
+<p><a href="http://cran.rstudio.com/" class="uri">http://cran.rstudio.com/</a></p>
 <p>However, we will install only a few that will be very helpful for performing better data analysis.</p>
 <p>We can load in the necessary packages as such (you can copy and paste this code into the R console of RStudio). Note that in order to install a package you must quotes around the name.</p>
-<pre class="r"><code>install.packages(c(&quot;devtools&quot;, &quot;lattice&quot;, &quot;ggplot2&quot;, &quot;reshape2&quot;, &quot;plyr&quot;, &quot;slidify&quot;, &quot;knitr&quot;, &quot;swirl&quot;))</code></pre>
+<pre class="r"><code>install.packages(c(&quot;devtools&quot;, &quot;lattice&quot;, &quot;ggplot2&quot;, &quot;reshape2&quot;, 
+                   &quot;plyr&quot;, &quot;slidify&quot;, &quot;knitr&quot;, &quot;swirl&quot;))</code></pre>
 <p>The devtools packages contains a lot of dependencies that are used in many R packages. The lattice and ggplot2 packages are very powerful graphing packages that will be used in tutorials to follow. The reshape2 and plyr packages are very useful for transforming data. Slidify and knitr are packages used for presenting information. Slidify allows you to make a slide deck in R, which can allow you to update the data in a presentation seamlessly (since the R code is embedded). Knitr is similar to Slidify except instead of slides it creates markdown and html documents, which can be exported to PDFs. This document you are using was created with knitr. Swirl is an optional package that teaches you how to program in R interactively.</p>
 <p>Even though we have installed all of the packages, they still needed to be loaded into the system in order to be used. Unlike the install.packages command, quotes are not needed when loading a library. Also, each package must be loaded separately. Let’s load them now:</p>
 <pre class="r"><code>library(devtools)
@@ -98,7 +99,9 @@ library(plyr)
 library(slidify)
 library(knitr)
 
-#Swirl is optional if you would like to learn more about R programming.  Going to the course repository will tell you how to install swirl courses.  These courses are interactive and performed within RStudio.
+# Swirl is optional if you would like to learn more about R programming.  
+# Going to the course repository will tell you how to install swirl courses.  
+# These courses are interactive and performed within RStudio.
 library(swirl)</code></pre>
 </div>
 <div id="a-quick-primer-on-r" class="section level2">

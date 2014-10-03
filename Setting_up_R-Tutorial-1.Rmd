@@ -2,7 +2,7 @@
 title: "Better Data Analysis with R"
 author: "Eric Koziol"
 subtitle: Installing R and RStudio
-output: pdf_document
+output: html_document
 ---
 
 ##What is R?
@@ -40,7 +40,8 @@ However, we will install only a few that will be very helpful for performing bet
 We can load in the necessary packages as such (you can copy and paste this code into the R console of RStudio).  Note that in order to install a package you must quotes around the name.
 
 ```{r, eval=FALSE}
-install.packages(c("devtools", "lattice", "ggplot2", "reshape2", "plyr", "slidify", "knitr", "swirl"))
+install.packages(c("devtools", "lattice", "ggplot2", "reshape2", 
+                   "plyr", "slidify", "knitr", "swirl"))
 ```
 
 
@@ -57,7 +58,9 @@ library(plyr)
 library(slidify)
 library(knitr)
 
-#Swirl is optional if you would like to learn more about R programming.  Going to the course repository will tell you how to install swirl courses.  These courses are interactive and performed within RStudio.
+# Swirl is optional if you would like to learn more about R programming.  
+# Going to the course repository will tell you how to install swirl courses.  
+# These courses are interactive and performed within RStudio.
 library(swirl)
 ```
 

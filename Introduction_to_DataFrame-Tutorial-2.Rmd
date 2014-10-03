@@ -51,3 +51,5 @@ hist(cars$cyl)
 ```
 
 While this isn't the prettiest plot, it gets the idea across quickly.  Much prettier plotting options will be shown in later tutorials.
+
+###Filtering Data
