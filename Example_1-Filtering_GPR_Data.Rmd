@@ -3,30 +3,92 @@
 ###*Eric Koziol*
 
 #Problem
-WJE was examining a parking garage that had questions of adequate steel placement.  In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations.  This resulted in over 100 individual GPR files of GPR data, each with multiple precast columns included.  While processing of GPR data for steel locations and slab depths were time consuming but routine, there still remained the issue of how to relate all of the data points to the correct column strip.  These data points then needed to be aggregated per column strip to find the average cover depth in order to determine where correct repairs were required.
+WJE was examining a parking garage that had questions of adequate steel placement.  In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations.  This resulted in over 140 individual GPR files of GPR data, each with multiple precast columns included.  While processing of GPR data for steel locations and slab depths were time consuming but routine, there still remained the issue of how to relate all of the data points to the correct column strip.  These data points then needed to be aggregated per column strip to find the average cover depth in order to determine where correct repairs were required.
 
 #Solution
 In order to properly aggregate the data three steps needed to be peformed.
 
 1.  Process the GPR data to identify the steel locations, each column's location within a scan, and determine the slab thickness at each column.  This data (file name, file number, scan, Dist(ft), scan, name(data point type [rebar, column, slab]), 2-way time, detph) was then exported to a .csv file via GSSI Radan software.
 2.  After all of the data was exported, a second post processing step of identify the steel direction of each file as well as the column name of each column data point was required.  The column strip width and punching shear width in both the N-S and E-W directions was also added to each column data point.
-3.  After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data.  This included averaging only the bars within the stated column strip and punching shear zones of a given column.  The end result was a summary table which can be viewed at the end of this document.
+3.  After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data.  This included averaging only the bars within the stated column strip and punching shear zones of a given column.  This resulted in a summary table that was exported to a .csv file.  The data in each row was then analyzed under varying conditions to determine if the slab in that location was adequate or not.  A portion of the summary has been shown below.  Note that not all of the rows have been shown in order to keep the size of this document smaller.
+
+```{r,echo=FALSE}
+exampleData <- read.csv("Examples/Example_1_Data/entirecolumnSummary.csv")
+exampleData[1:10,2:5]
+exampleData[1:10,c(2,6:8)]
+exampleData[1:10,c(2,9:11)]
+exampleData[1:10,c(2,12:14)]
+exampleData[1:10,c(2,15:16)]
+```
 
 ## Why R?
 R was selected due to its robustness in data processing over Excel.  When new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime to account for new information.  Instead a line or two of code were modified to provide the proper output.  The development time required to create the R script was much shorter than would have been required to create an Excel template. 
 
 ### GPR Post Processing
+Using GSSI Radan software, three different types of points were selected.  The three different types had a separate 'Focus' created in the Interactive BridgeScan mode.  They were selected and labeled as stated below:
 
+1.  Rebar top steel was identified as pink dots and labeled as 'Rebar'.
+2.  The bottom of the slab was identified as yellow dots and labeled as 'Slab'.
+3.  The columns were identified as orange dots and labeld as 'Column'.
+
+While it took considerable time to identify these points, it is somewhat standard of a procedure for processing GPR data.
 
 ### Excel Data Preparation
 
 
 ### R data filtering transformations
+The entire code used can be viewed at the end of this document.  Here we will step through the code to explain functions and design decisions.
+
+We first load in the file into a Data Frame through the read.csv() command.  We also save this Data Frame to a variable called data.  The second part creates three separate Data Frame variables from the imported data.  We select these variables based on the GPR annotated layer that occured during the initial post processing.  Thus by calling **bars <- data[data$Name == "Rebar",]** we select all rows from data where the column 'Name' of data is equal to 'Rebar'.  Adding the comma after this filter ensures that all of the data columns for these selected rows are transferred to the bars Data Frame variable.
+
+```{r, eval=FALSE}
+data <- read.csv("ENTIREGARAGERUN2.csv")
+
+bars <- data[data$Name == "Rebar",]
+columns <- data[data$Name == "Column",]
+bottomSlab <- data[data$Name == "BottomSlab",]
+
+```
+
+```{r, eval=FALSE}
+findNearestColumn <- function(type, f,x){
+   if(type == "bending"){
+    tempCols <- data[(data$Filename == f) & (data$minStripDist <= x) & (data$maxStripDist >= x) & (data$Name == "Column"),]
+   }
+   else if(type == "NSShear"){
+     tempCols <- data[(data$Filename == f) & (data$NSPunchShearMinDist <= x) & (data$NSPunchShearMaxDist >= x) & (data$Name == "Column"),]
+   }
+   else{
+     tempCols <- data[(data$Filename == f) & (data$EWPunchShearMinDist <= x) & (data$EWPunchShearMaxDist >= x) & (data$Name == "Column"),]
+   }
+  #print(tempCols$Column.Manual)
+  if(length(tempCols$Column.Manual) > 0){
+#     print(as.character(tempCols$Column.Manual))
+    return(as.character(tempCols$Column.Manual))
+  }
+  else{
+#     print(NA)
+    return(NA)
+  }
+}
 
 
 
+bars$PartofColumnBending <- mapply(findNearestColumn, "bending", bars$Filename, bars$Dist..ft.)
+bars$NSPartofColumnPunching <- mapply(findNearestColumn, "NSShear", bars$Filename, bars$Dist..ft.)
+bars$EWPartofColumnPunching <- mapply(findNearestColumn, "EWShear", bars$Filename, bars$Dist..ft.)
+
+```
+
+```{r, eval=FALSE}
+
+```
 #Code
 ```{r, eval=FALSE}
+##GPR steel aggregator by column
+##Eric Koziol
+##July 14, 2014
+
 data <- read.csv("ENTIREGARAGERUN2.csv")
 
 bars <- data[data$Name == "Rebar",]

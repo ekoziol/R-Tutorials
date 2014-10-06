@@ -64,7 +64,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="problem" class="section level1">
 <h1>Problem</h1>
-<p>WJE was examining a parking garage that had questions of adequate steel placement. In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations. This resulted in over 100 individual GPR files of GPR data, each with multiple precast columns included. While processing of GPR data for steel locations and slab depths were time consuming but routine, there still remained the issue of how to relate all of the data points to the correct column strip. These data points then needed to be aggregated per column strip to find the average cover depth in order to determine where correct repairs were required.</p>
+<p>WJE was examining a parking garage that had questions of adequate steel placement. In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations. This resulted in over 140 individual GPR files of GPR data, each with multiple precast columns included. While processing of GPR data for steel locations and slab depths were time consuming but routine, there still remained the issue of how to relate all of the data points to the correct column strip. These data points then needed to be aggregated per column strip to find the average cover depth in order to determine where correct repairs were required.</p>
 </div>
 <div id="solution" class="section level1">
 <h1>Solution</h1>
@@ -72,25 +72,92 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <ol style="list-style-type: decimal">
 <li>Process the GPR data to identify the steel locations, each column’s location within a scan, and determine the slab thickness at each column. This data (file name, file number, scan, Dist(ft), scan, name(data point type [rebar, column, slab]), 2-way time, detph) was then exported to a .csv file via GSSI Radan software.</li>
 <li>After all of the data was exported, a second post processing step of identify the steel direction of each file as well as the column name of each column data point was required. The column strip width and punching shear width in both the N-S and E-W directions was also added to each column data point.</li>
-<li>After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data. This included averaging only the bars within the stated column strip and punching shear zones of a given column. The end result was a summary table which can be viewed at the end of this document.</li>
+<li>After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data. This included averaging only the bars within the stated column strip and punching shear zones of a given column. This resulted in a summary table that was exported to a .csv file. The data in each row was then analyzed under varying conditions to determine if the slab in that location was adequate or not. A portion of the summary has been shown below. Note that not all of the rows have been shown in order to keep the size of this document smaller.</li>
 </ol>
+<pre><code>##    column NSBendingCount NSbendingmeanBars NSbendingstdBars
+## 1    0-E5             18             3.683           0.2541
+## 2    0-E6             19             3.377           0.5948
+## 3    0-F3             16             3.104           0.2291
+## 4    0-F4             12             3.259           0.1982
+## 5    0-F5             16             3.683           0.3050
+## 6    1-E3             20             4.308           0.1749
+## 7    1-E4             18             3.777           0.2397
+## 8    1-E5             15             3.567           0.2922
+## 9    1-F7             18             3.347           0.1749
+## 10   1-F8             17             4.944           0.3412</code></pre>
+<pre><code>##    column EWBendingCount EWbendingmeanBars EWbendingstdBars
+## 1    0-E5             19             2.567           0.1940
+## 2    0-E6             15             2.739           0.7963
+## 3    0-F3              7             1.989           0.2845
+## 4    0-F4             21             2.664           0.3537
+## 5    0-F5             19             2.528           0.3776
+## 6    1-E3             20             2.892           0.1819
+## 7    1-E4             23             2.739           0.3844
+## 8    1-E5             20             2.811           0.2399
+## 9    1-F7             22             2.713           0.4258
+## 10   1-F8             20             3.980           0.3633</code></pre>
+<pre><code>##    column NSShearCount NSShearmeanBars NSShearstdBars
+## 1    0-E5            6           3.930        0.16805
+## 2    0-E6            3           3.393        0.65056
+## 3    0-F3            4           3.167        0.22036
+## 4    0-F4            4           3.288        0.16939
+## 5    0-F5            5           3.560        0.14950
+## 6    1-E3            8           4.301        0.09949
+## 7    1-E4            4           3.965        0.30161
+## 8    1-E5            4           3.740        0.10863
+## 9    1-F7            4           3.453        0.15457
+## 10   1-F8            6           4.887        0.35943</code></pre>
+<pre><code>##    column EWShearCount EWShearmeanBars EWShearstdBars
+## 1    0-E5            5           2.686        0.14311
+## 2    0-E6            7           2.834        1.16386
+## 3    0-F3            3           1.777        0.24132
+## 4    0-F4            6           2.370        0.27691
+## 5    0-F5            6           2.432        0.10439
+## 6    1-E3            6           3.058        0.07414
+## 7    1-E4            6           2.733        0.08454
+## 8    1-E5            6           3.028        0.12576
+## 9    1-F7            8           2.640        0.11856
+## 10   1-F8            7           4.189        0.20029</code></pre>
+<pre><code>##    column NSslabThickness EWslabThickness
+## 1    0-E5           10.79           11.22
+## 2    0-E6           12.20           11.90
+## 3    0-F3           12.33           13.10
+## 4    0-F4           11.95           12.03
+## 5    0-F5           11.35           11.05
+## 6    1-E3           10.23           10.45
+## 7    1-E4           10.79           10.40
+## 8    1-E5           10.49           10.96
+## 9    1-F7           10.66           11.39
+## 10   1-F8           12.59           11.65</code></pre>
 <div id="why-r" class="section level2">
 <h2>Why R?</h2>
-<p>R was selected due to its robustness in data processing over Excel. If new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime. The development time required to create the R script was much shorter than would have been required to create an Excel template.</p>
+<p>R was selected due to its robustness in data processing over Excel. When new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime to account for new information. Instead a line or two of code were modified to provide the proper output. The development time required to create the R script was much shorter than would have been required to create an Excel template.</p>
 <div id="gpr-post-processing" class="section level3">
 <h3>GPR Post Processing</h3>
+<p>Using GSSI Radan software, three different types of points were selected. The three different types had a separate ‘Focus’ created in the Interactive BridgeScan mode. They were selected and labeled as stated below:</p>
+<ol style="list-style-type: decimal">
+<li>Rebar top steel was identified as pink dots and labeled as ‘Rebar’.</li>
+<li>The bottom of the slab was identified as yellow dots and labeled as ‘Slab’.</li>
+<li>The columns were identified as orange dots and labeld as ‘Column’.</li>
+</ol>
+<p>While it took considerable time to identify these points, it is somewhat standard of a procedure for processing GPR data.</p>
 </div>
 <div id="excel-data-preparation" class="section level3">
 <h3>Excel Data Preparation</h3>
 </div>
 <div id="r-data-filtering-transformations" class="section level3">
 <h3>R data filtering transformations</h3>
+<p>The entire code used can be viewed at the end of this document. Here we will step through the code to explain functions and design decisions.</p>
 </div>
 </div>
 </div>
 <div id="code" class="section level1">
 <h1>Code</h1>
-<pre class="r"><code>data &lt;- read.csv(&quot;ENTIREGARAGERUN2.csv&quot;)
+<pre class="r"><code>##GPR steel aggregator by column
+##Eric Koziol
+##July 14, 2014
+
+data &lt;- read.csv(&quot;ENTIREGARAGERUN2.csv&quot;)
 
 bars &lt;- data[data$Name == &quot;Rebar&quot;,]
 columns &lt;- data[data$Name == &quot;Column&quot;,]
