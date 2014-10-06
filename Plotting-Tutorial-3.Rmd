@@ -18,7 +18,15 @@ library(lattice)
 library(AppliedPredictiveModeling)
 ```
 
-The Applied Predictive Modeling package contains a concrete dataset that we can experiment with.  I thought it would be good to use a dataset that our company actually deals with.
+The Applied Predictive Modeling package contains a concrete dataset that we can experiment with.  I thought it would be good to use a dataset that our company actually deals with.  Let's load it now.
+
+```{r}
+data(concrete)
+head(mixtures,10)
+```
+
+
 
 #Plotting systems in R
 
+There are three main plotting systems in R - Base, Lattice and ggplot2.  

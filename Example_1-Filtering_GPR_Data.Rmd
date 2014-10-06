@@ -1,0 +1,175 @@
+#Better Data Analysis with R
+##Example 1 - Filtering GPR Data
+###*Eric Koziol*
+
+#Problem
+WJE was examining a parking garage that had questions of adequate steel placement.  In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations.  This resulted in over 100 individual GPR files of GPR data, each with multiple precast columns included.  While processing of GPR data for steel locations and slab depths were time consuming but routine, there still remained the issue of how to relate all of the data points to the correct column strip.  These data points then needed to be aggregated per column strip to find the average cover depth in order to determine where correct repairs were required.
+
+#Solution
+In order to properly aggregate the data three steps needed to be peformed.
+
+1.  Process the GPR data to identify the steel locations, each column's location within a scan, and determine the slab thickness at each column.  This data (file name, file number, scan, Dist(ft), scan, name(data point type [rebar, column, slab]), 2-way time, detph) was then exported to a .csv file via GSSI Radan software.
+2.  After all of the data was exported, a second post processing step of identify the steel direction of each file as well as the column name of each column data point was required.  The column strip width and punching shear width in both the N-S and E-W directions was also added to each column data point.
+3.  After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data.  This included averaging only the bars within the stated column strip and punching shear zones of a given column.  The end result was a summary table which can be viewed at the end of this document.
+
+## Why R?
+R was selected due to its robustness in data processing over Excel.  If new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime.  The development time required to create the R script was much shorter than would have been required to create an Excel template. 
+
+### GPR Post Processing
+
+
+### Excel Data Preparation
+
+
+### R data filtering transformations
+
+
+
+#Code
+```{r, eval=FALSE}
+data <- read.csv("ENTIREGARAGERUN2.csv")
+
+bars <- data[data$Name == "Rebar",]
+columns <- data[data$Name == "Column",]
+bottomSlab <- data[data$Name == "BottomSlab",]
+
+
+findNearestColumn <- function(type, f,x){
+   if(type == "bending"){
+    tempCols <- data[(data$Filename == f) & (data$minStripDist <= x) & (data$maxStripDist >= x) & (data$Name == "Column"),]
+   }
+   else if(type == "NSShear"){
+     tempCols <- data[(data$Filename == f) & (data$NSPunchShearMinDist <= x) & (data$NSPunchShearMaxDist >= x) & (data$Name == "Column"),]
+   }
+   else{
+     tempCols <- data[(data$Filename == f) & (data$EWPunchShearMinDist <= x) & (data$EWPunchShearMaxDist >= x) & (data$Name == "Column"),]
+   }
+  #print(tempCols$Column.Manual)
+  if(length(tempCols$Column.Manual) > 0){
+#     print(as.character(tempCols$Column.Manual))
+    return(as.character(tempCols$Column.Manual))
+  }
+  else{
+#     print(NA)
+    return(NA)
+  }
+}
+
+
+
+bars$PartofColumnBending <- mapply(findNearestColumn, "bending", bars$Filename, bars$Dist..ft.)
+bars$NSPartofColumnPunching <- mapply(findNearestColumn, "NSShear", bars$Filename, bars$Dist..ft.)
+bars$EWPartofColumnPunching <- mapply(findNearestColumn, "EWShear", bars$Filename, bars$Dist..ft.)
+
+
+findBars <- function(type, column,filename){
+   if(type == "bending"){
+    tempBars <- bars[(bars$PartofColumnBending == column) 
+                     & !is.na(bars$PartofColumnBending) &(bars$Filename == filename),]
+  }
+  else if(type == "NSShear"){
+    tempBars <- bars[(bars$NSPartofColumnPunching == column) 
+                     & !is.na(bars$NSPartofColumnPunching) &(bars$Filename == filename),]
+  }
+  else{
+    tempBars <- bars[(bars$EWPartofColumnPunching == column) 
+                     & !is.na(bars$EWPartofColumnPunching) &(bars$Filename == filename),]
+  }
+  return(nrow(tempBars))
+  
+}
+
+meanBars <- function(type, column,filename){
+  if(type == "bending"){
+    tempBars <- bars[(bars$PartofColumnBending == column) 
+                     & !is.na(bars$PartofColumnBending) &(bars$Filename == filename),]
+  }
+  else if(type == "NSShear"){
+    tempBars <- bars[(bars$NSPartofColumnPunching == column) 
+                     & !is.na(bars$NSPartofColumnPunching) &(bars$Filename == filename),]
+  }
+  else{
+    tempBars <- bars[(bars$EWPartofColumnPunching == column) 
+                     & !is.na(bars$EWPartofColumnPunching) &(bars$Filename == filename),]
+  }
+  return(mean(tempBars$Depth.in.))
+  
+}
+
+stdBars <- function(type, column,filename){
+  if(type == "bending"){
+    tempBars <- bars[(bars$PartofColumnBending == column) 
+                     & !is.na(bars$PartofColumnBending) &(bars$Filename == filename),]
+  }
+  else if(type == "NSShear"){
+    tempBars <- bars[(bars$NSPartofColumnPunching == column) 
+                     & !is.na(bars$NSPartofColumnPunching) &(bars$Filename == filename),]
+  }
+  else{
+    tempBars <- bars[(bars$EWPartofColumnPunching == column) 
+                     & !is.na(bars$EWPartofColumnPunching) &(bars$Filename == filename),]
+  }
+  return(sd(tempBars$Depth.in.))
+  
+}
+
+columns$bendingCount <- mapply(findBars, "bending", columns$Column.Manual, columns$Filename)
+columns$bendingmeanBars <- mapply(meanBars, "bending", columns$Column.Manual, columns$Filename)
+columns$bendingstdBars <- mapply(stdBars, "bending", columns$Column.Manual, columns$Filename)
+
+columns$NSShearCount <- mapply(findBars, "NSShear", columns$Column.Manual, columns$Filename)
+columns$NSShearmeanBars <- mapply(meanBars, "NSShear", columns$Column.Manual, columns$Filename)
+columns$NSShearstdBars <- mapply(stdBars, "NSShear", columns$Column.Manual, columns$Filename)
+
+columns$EWShearCount <- mapply(findBars, "EWShear",columns$Column.Manual, columns$Filename)
+columns$EWShearmeanBars <- mapply(meanBars, "EWShear",columns$Column.Manual, columns$Filename)
+columns$EWShearstdBars <- mapply(stdBars,"EWShear", columns$Column.Manual, columns$Filename)
+
+findNearestSlabThickness <- function(filename, dist){  
+  depths <- bottomSlab[(bottomSlab$Filename == filename),]
+  
+  depths$close <- abs(depths$Dist..ft. - dist)
+  if(length(as.numeric(depths[with(depths, order(close)), "Depth.in."][1])) < 1){
+    return(as.numeric(depths[with(depths, order(close)), "Depth.in."][2]))
+  }
+  else{
+    return(as.numeric(depths[with(depths, order(close)), "Depth.in."][1]))
+  }
+}
+
+columns$slabThickness <- mapply(findNearestSlabThickness, columns$Filename, columns$Dist..ft.)
+
+write.csv(columns[with(columns, order(Column.Manual)), ], "EntireColumnProcessedData.csv")
+
+
+columnSummary <- data.frame(unique(columns$Column.Manual))
+names(columnSummary) <- "column"
+columnSummary$column <- columnSummary[with(columnSummary, order(column)),]
+
+ewColumns <- columns[columns$Steel.Direction == "EW",]
+nsColumns <- columns[columns$Steel.Direction == "NS",]
+
+findColumnbyColumn <- function(pcol, columnName, direction)
+{
+  return(columns[(columns$Column.Manual == pcol) & (columns$Steel.Direction == direction), columnName][1])
+}
+
+columnSummary$NSBendingCount <- mapply(findColumnbyColumn, columnSummary$column, "bendingCount", "NS")
+columnSummary$NSbendingmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingmeanBars", "NS")
+columnSummary$NSbendingstdBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingstdBars", "NS")
+columnSummary$EWBendingCount <- mapply(findColumnbyColumn, columnSummary$column, "bendingCount", "EW")
+columnSummary$EWbendingmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingmeanBars", "EW")
+columnSummary$EWbendingstdBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingstdBars", "EW")
+
+columnSummary$NSShearCount <- mapply(findColumnbyColumn, columnSummary$column, "NSShearCount", "NS")
+columnSummary$NSShearmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "NSShearmeanBars", "NS")
+columnSummary$NSShearstdBars <- mapply(findColumnbyColumn, columnSummary$column, "NSShearstdBars", "NS")
+columnSummary$EWShearCount <- mapply(findColumnbyColumn, columnSummary$column, "EWShearCount", "EW")
+columnSummary$EWShearmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "EWShearmeanBars", "EW")
+columnSummary$EWShearstdBars <- mapply(findColumnbyColumn, columnSummary$column, "EWShearstdBars", "EW")
+
+columnSummary$NSslabThickness <- mapply(findColumnbyColumn, columnSummary$column, "slabThickness", "NS")
+columnSummary$EWslabThickness <- mapply(findColumnbyColumn, columnSummary$column, "slabThickness", "EW")
+
+write.csv(columnSummary, "entirecolumnSummary.csv")
+```
