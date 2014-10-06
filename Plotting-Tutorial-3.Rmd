@@ -1,0 +1,24 @@
+
+#Better Data Analysis with R
+##Plotting
+###*Eric Koziol*
+
+
+#Setup
+Before we get started please ensure that the following packages are installed and running.
+
+```{r, eval=FALSE}
+install.packages("ggplot2")
+install.packages("lattice")
+install.packages("AppliedPredictiveModeling")
+```
+```{r}
+library(ggplot2)
+library(lattice)
+library(AppliedPredictiveModeling)
+```
+
+The Applied Predictive Modeling package contains a concrete dataset that we can experiment with.  I thought it would be good to use a dataset that our company actually deals with.
+
+#Plotting systems in R
+
