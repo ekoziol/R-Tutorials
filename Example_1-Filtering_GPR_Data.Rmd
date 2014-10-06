@@ -13,7 +13,7 @@ In order to properly aggregate the data three steps needed to be peformed.
 3.  After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data.  This included averaging only the bars within the stated column strip and punching shear zones of a given column.  The end result was a summary table which can be viewed at the end of this document.
 
 ## Why R?
-R was selected due to its robustness in data processing over Excel.  If new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime.  The development time required to create the R script was much shorter than would have been required to create an Excel template. 
+R was selected due to its robustness in data processing over Excel.  When new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime to account for new information.  Instead a line or two of code were modified to provide the proper output.  The development time required to create the R script was much shorter than would have been required to create an Excel template. 
 
 ### GPR Post Processing
 
