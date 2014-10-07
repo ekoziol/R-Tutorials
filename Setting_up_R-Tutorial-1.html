@@ -63,18 +63,18 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="what-is-r" class="section level2">
 <h2>What is R?</h2>
-<p>R is a very powerful open source statistical programming language that allows for robust and reproducible data analysis. R can handle files much larger than Excel (I have loaded over 1 GB of data into R for analysis) and allows your data analysis to be reproducible. That is, anyone can extract the same output from your analysis without having to have any errors caused by manual steps such as filtering out a given column. I think you will find the use of R extremely valuable in performing higher quality data analysis.</p>
+<p>R is a very powerful open source statistical programming language that allows for robust and reproducible data analysis. R can handle files much larger than Excel (I have loaded over 1 GB of data into R for analysis) and allows your data analysis to be reproducible. Creating reproducible analyses prevents the problem of not looking at a project for six months, getting new data and trying to remember what manual steps were used in order to carry out the analysis. That is, anyone can extract the same output from your analysis without having to have any errors caused by manual steps such as filtering out a given column. I think you will find the use of R extremely valuable in performing higher quality data analysis.</p>
 </div>
 <div id="installing-r" class="section level2">
 <h2>Installing R</h2>
 <p>To install R, visit this web address:</p>
-<p><a href="http://cran.rstudio.com/" class="uri">http://cran.rstudio.com/</a></p>
+<p><a href="http://cran.rstudio.com/">http://cran.rstudio.com/</a></p>
 <p>and select the appropriate operating system that you are using. Then following the instructions. This will give you the shell of R which can run any myriad of R code.</p>
 </div>
 <div id="installing-rstudio" class="section level2">
 <h2>Installing RStudio</h2>
 <p>While it nice to run code just with R, it is much better to develop code and perform data anlysis in an Integrated Development Environment (IDE). The best IDE for R is called RStudio and can be downloaded here:</p>
-<p><a href="http://www.rstudio.com/products/rstudio/#Desk" class="uri">http://www.rstudio.com/products/rstudio/#Desk</a></p>
+<p><a href="http://www.rstudio.com/products/rstudio/#Desk">http://www.rstudio.com/products/rstudio/#Desk</a></p>
 <p>RStudio has four main windows:</p>
 <ol style="list-style-type: decimal">
 <li>The top left window is where you can view and edit code files. You can also run code file from here by clicking the run button in the upper right. Alternatively you can bring variables into your environment by pressing the source button.</li>
@@ -86,7 +86,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="installing-packages-for-r" class="section level2">
 <h2>Installing packages for R</h2>
 <p>From what we have downloaded so far, we have a somewhat limited shell of R commands available to us. In order to greatly increase the usefulness and power of R, we need to install what are called packages. Packages are libraries of software code that contain groups of commands that we can use. Anyone can build and deploy R packages including you! The entire list of R packages that have been deployed to CRAN (the makers of RStudio) can be found here:</p>
-<p><a href="http://cran.rstudio.com/" class="uri">http://cran.rstudio.com/</a></p>
+<p><a href="http://cran.rstudio.com/">http://cran.rstudio.com/</a></p>
 <p>However, we will install only a few that will be very helpful for performing better data analysis.</p>
 <p>We can load in the necessary packages as such (you can copy and paste this code into the R console of RStudio). Note that in order to install a package you must quotes around the name.</p>
 <pre class="r"><code>install.packages(c(&quot;devtools&quot;, &quot;lattice&quot;, &quot;ggplot2&quot;, &quot;reshape2&quot;, 

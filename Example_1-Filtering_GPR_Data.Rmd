@@ -120,7 +120,9 @@ bars$EWPartofColumnPunching <- mapply(findNearestColumn, "EWShear", bars$Filenam
 
 ```
 
-Now that we have a column and zone associated with each rebar, we can begin to aggregate the data based on the column name.  
+Now that we have a column and zone associated with each rebar, we can begin to aggregate the data based on the column name.  The three functions listed below, *findBars*, *meanBars*, and *stdBars*, all take the same inputs.  Those inputs are zone type (column strip, NS or EW punching shear), the column name and the filename.  Each of these functions filters the *bar* Data Frame to select only the bars that are within the specified zone, for the specified column in the specified file.  The *findBars* returns the number of bars for the given inputs, *meanBars* returns the mean average depth of the bars, and *stdBars* returns the standard deviation of the depth of bars.
+
+We then apply these functions to create nine fields that detail the pertinent information we are looking at: the number of bars, the average depth of bar and the standard deviation of bars for the column strip, NS punching shear and EW punching shear of each column.  Note that these nine fields are added to the *column* Data Frame for more convienent aggregating later.  We also apply these function over each row in the *column* Data Frame.
 
 ```{r, eval=FALSE}
 findBars <- function(type, column,filename){
@@ -186,6 +188,29 @@ columns$EWShearCount <- mapply(findBars, "EWShear",columns$Column.Manual, column
 columns$EWShearmeanBars <- mapply(meanBars, "EWShear",columns$Column.Manual, columns$Filename)
 columns$EWShearstdBars <- mapply(stdBars,"EWShear", columns$Column.Manual, columns$Filename)
 ```
+
+In order to evaluate the strength of the slab we need the thickness of the slab in order to calculate the cover depth of the rebar.  We can find the bottom of slab depth (identified through Radan) at each column location through the findNearestSlabThickness function below.  This function works first by finding all of the bottom of slab data points for a given file name.  Then a new data field called *close* is created that takes the distance between the column of interest and every bottom of slab point.
+
+```{r, eval=FALSE}
+findNearestSlabThickness <- function(filename, dist){  
+  depths <- bottomSlab[(bottomSlab$Filename == filename),]
+  
+  depths$close <- abs(depths$Dist..ft. - dist)
+  if(length(as.numeric(depths[with(depths, order(close)), "Depth.in."][1])) < 1){
+    return(as.numeric(depths[with(depths, order(close)), "Depth.in."][2]))
+  }
+  else{
+    return(as.numeric(depths[with(depths, order(close)), "Depth.in."][1]))
+  }
+}
+
+columns$slabThickness <- mapply(findNearestSlabThickness, columns$Filename, columns$Dist..ft.)
+```
+
+```{r, eval=FALSE}
+
+```
+
 #Code
 ```{r, eval=FALSE}
 ##GPR steel aggregator by column

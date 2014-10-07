@@ -230,6 +230,84 @@ bottomSlab &lt;- data[data$Name == &quot;BottomSlab&quot;,]</code></pre>
 bars$PartofColumnBending &lt;- mapply(findNearestColumn, &quot;bending&quot;, bars$Filename, bars$Dist..ft.)
 bars$NSPartofColumnPunching &lt;- mapply(findNearestColumn, &quot;NSShear&quot;, bars$Filename, bars$Dist..ft.)
 bars$EWPartofColumnPunching &lt;- mapply(findNearestColumn, &quot;EWShear&quot;, bars$Filename, bars$Dist..ft.)</code></pre>
+<p>Now that we have a column and zone associated with each rebar, we can begin to aggregate the data based on the column name. The three functions listed below, <em>findBars</em>, <em>meanBars</em>, and <em>stdBars</em>, all take the same inputs. Those inputs are zone type (column strip, NS or EW punching shear), the column name and the filename. Each of these functions filters the <em>bar</em> Data Frame to select only the bars that are within the specified zone, for the specified column in the specified file. The <em>findBars</em> returns the number of bars for the given inputs, <em>meanBars</em> returns the mean average depth of the bars, and <em>stdBars</em> returns the standard deviation of the depth of bars.</p>
+<p>We then apply these functions to create nine fields that detail the pertinent information we are looking at: the number of bars, the average depth of bar and the standard deviation of bars for the column strip, NS punching shear and EW punching shear of each column. Note that these nine fields are added to the <em>column</em> Data Frame for more convienent aggregating later. We also apply these function over each row in the <em>column</em> Data Frame.</p>
+<pre class="r"><code>findBars &lt;- function(type, column,filename){
+   if(type == &quot;bending&quot;){
+    tempBars &lt;- bars[(bars$PartofColumnBending == column) 
+                     &amp; !is.na(bars$PartofColumnBending) &amp;(bars$Filename == filename),]
+  }
+  else if(type == &quot;NSShear&quot;){
+    tempBars &lt;- bars[(bars$NSPartofColumnPunching == column) 
+                     &amp; !is.na(bars$NSPartofColumnPunching) &amp;(bars$Filename == filename),]
+  }
+  else{
+    tempBars &lt;- bars[(bars$EWPartofColumnPunching == column) 
+                     &amp; !is.na(bars$EWPartofColumnPunching) &amp;(bars$Filename == filename),]
+  }
+  return(nrow(tempBars))
+  
+}
+
+meanBars &lt;- function(type, column,filename){
+  if(type == &quot;bending&quot;){
+    tempBars &lt;- bars[(bars$PartofColumnBending == column) 
+                     &amp; !is.na(bars$PartofColumnBending) &amp;(bars$Filename == filename),]
+  }
+  else if(type == &quot;NSShear&quot;){
+    tempBars &lt;- bars[(bars$NSPartofColumnPunching == column) 
+                     &amp; !is.na(bars$NSPartofColumnPunching) &amp;(bars$Filename == filename),]
+  }
+  else{
+    tempBars &lt;- bars[(bars$EWPartofColumnPunching == column) 
+                     &amp; !is.na(bars$EWPartofColumnPunching) &amp;(bars$Filename == filename),]
+  }
+  return(mean(tempBars$Depth.in.))
+  
+}
+
+stdBars &lt;- function(type, column,filename){
+  if(type == &quot;bending&quot;){
+    tempBars &lt;- bars[(bars$PartofColumnBending == column) 
+                     &amp; !is.na(bars$PartofColumnBending) &amp;(bars$Filename == filename),]
+  }
+  else if(type == &quot;NSShear&quot;){
+    tempBars &lt;- bars[(bars$NSPartofColumnPunching == column) 
+                     &amp; !is.na(bars$NSPartofColumnPunching) &amp;(bars$Filename == filename),]
+  }
+  else{
+    tempBars &lt;- bars[(bars$EWPartofColumnPunching == column) 
+                     &amp; !is.na(bars$EWPartofColumnPunching) &amp;(bars$Filename == filename),]
+  }
+  return(sd(tempBars$Depth.in.))
+  
+}
+
+columns$bendingCount &lt;- mapply(findBars, &quot;bending&quot;, columns$Column.Manual, columns$Filename)
+columns$bendingmeanBars &lt;- mapply(meanBars, &quot;bending&quot;, columns$Column.Manual, columns$Filename)
+columns$bendingstdBars &lt;- mapply(stdBars, &quot;bending&quot;, columns$Column.Manual, columns$Filename)
+
+columns$NSShearCount &lt;- mapply(findBars, &quot;NSShear&quot;, columns$Column.Manual, columns$Filename)
+columns$NSShearmeanBars &lt;- mapply(meanBars, &quot;NSShear&quot;, columns$Column.Manual, columns$Filename)
+columns$NSShearstdBars &lt;- mapply(stdBars, &quot;NSShear&quot;, columns$Column.Manual, columns$Filename)
+
+columns$EWShearCount &lt;- mapply(findBars, &quot;EWShear&quot;,columns$Column.Manual, columns$Filename)
+columns$EWShearmeanBars &lt;- mapply(meanBars, &quot;EWShear&quot;,columns$Column.Manual, columns$Filename)
+columns$EWShearstdBars &lt;- mapply(stdBars,&quot;EWShear&quot;, columns$Column.Manual, columns$Filename)</code></pre>
+<p>In a similar fashion to the functions above</p>
+<pre class="r"><code>findNearestSlabThickness &lt;- function(filename, dist){  
+  depths &lt;- bottomSlab[(bottomSlab$Filename == filename),]
+  
+  depths$close &lt;- abs(depths$Dist..ft. - dist)
+  if(length(as.numeric(depths[with(depths, order(close)), &quot;Depth.in.&quot;][1])) &lt; 1){
+    return(as.numeric(depths[with(depths, order(close)), &quot;Depth.in.&quot;][2]))
+  }
+  else{
+    return(as.numeric(depths[with(depths, order(close)), &quot;Depth.in.&quot;][1]))
+  }
+}
+
+columns$slabThickness &lt;- mapply(findNearestSlabThickness, columns$Filename, columns$Dist..ft.)</code></pre>
 </div>
 </div>
 </div>

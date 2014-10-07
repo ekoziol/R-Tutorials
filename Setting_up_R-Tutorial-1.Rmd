@@ -5,7 +5,7 @@
 
 ##What is R?
 R is a very powerful open source statistical programming language that allows for robust and reproducible
-data analysis.  R can handle files much larger than Excel (I have loaded over 1 GB of data into R for analysis) and allows your data analysis to be reproducible.  That is, anyone can extract the same output from your analysis without having to have any errors caused by manual steps such as filtering out a given column.  I think you will find the use of R extremely valuable in performing higher quality data analysis.
+data analysis.  R can handle files much larger than Excel (I have loaded over 1 GB of data into R for analysis) and allows your data analysis to be reproducible.  Creating reproducible analyses prevents the problem of not looking at a project for six months, getting new data and trying to remember what manual steps were used in order to carry out the analysis.  That is, anyone can extract the same output from your analysis without having to have any errors caused by manual steps such as filtering out a given column.  I think you will find the use of R extremely valuable in performing higher quality data analysis.
 
 ##Installing R
 To install R, visit this web address:
