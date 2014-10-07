@@ -189,7 +189,7 @@ columns$EWShearmeanBars <- mapply(meanBars, "EWShear",columns$Column.Manual, col
 columns$EWShearstdBars <- mapply(stdBars,"EWShear", columns$Column.Manual, columns$Filename)
 ```
 
-In order to evaluate the strength of the slab we need the thickness of the slab in order to calculate the cover depth of the rebar.  We can find the bottom of slab depth (identified through Radan) at each column location through the findNearestSlabThickness function below.  This function works first by finding all of the bottom of slab data points for a given file name.  Then a new data field called *close* is created that takes the distance between the column of interest and every bottom of slab point.
+In order to evaluate the strength of the slab we need the thickness of the slab in order to calculate the cover depth of the rebar.  We can find the bottom of slab depth (identified through Radan) at each column location through the findNearestSlabThickness function below.  This function works first by finding all of the bottom of slab data points for a given file name.  Then a new data field called *close* is created that takes the distance between the column of interest and every bottom of slab point.  All of the points are then placed in ascending order by the distance difference. The first point is then selected and added as an additional field to the *column* Data Frame.
 
 ```{r, eval=FALSE}
 findNearestSlabThickness <- function(filename, dist){  
@@ -207,9 +207,51 @@ findNearestSlabThickness <- function(filename, dist){
 columns$slabThickness <- mapply(findNearestSlabThickness, columns$Filename, columns$Dist..ft.)
 ```
 
-```{r, eval=FALSE}
+Since we have acquired all of the fields we need for each data point it feels like a good time to output the processing before the final aggregation.  Let's write the to a csv file with the **write.csv()** function.  We'll order the rows by column name since there will be multiple instances of each column within the file.  The format to write to a csv is **write.csv(*variable*, *filename*)**.
 
+```{r, eval=FALSE}
+write.csv(columns[with(columns, order(Column.Manual)), ], "EntireColumnProcessedData.csv")
 ```
+
+We have reached the final aggregation phase of the script.  Here we will transform the data so each unique column is displayed on it's own row with the relevant information that we calculated above.  This step needs to be performed because each column is in two data files for each steel direction.  This will allow us to compress the data into a more digestable format.
+
+We start by creating a new Data Frame called *columnSummary* based on the unique column names.  Since this data field was unnamed in our conversion, we rename the field to "column" with the **names(columnSummary) <- "column"** command.  We then order all of the columns by level and then alphabetically. Since we already have the data we want in Data Frame field columns, let us define a function that can return the the specified field for a given column based on steel direction.  We then apply this function to get each data field of interest for each bar direction.  Each new data field gets assigned to a new column in the *columnSummary* Data Frame.  We then write the file to a .csv as before.  This results in a tabular .csv with the information shown at the beginning of the document.
+
+
+```{r, eval=FALSE}
+columnSummary <- data.frame(unique(columns$Column.Manual))
+names(columnSummary) <- "column"
+columnSummary$column <- columnSummary[with(columnSummary, order(column)),]
+
+ewColumns <- columns[columns$Steel.Direction == "EW",]
+nsColumns <- columns[columns$Steel.Direction == "NS",]
+
+findColumnbyColumn <- function(pcol, columnName, direction)
+{
+  return(columns[(columns$Column.Manual == pcol) & (columns$Steel.Direction == direction), columnName][1])
+}
+
+columnSummary$NSBendingCount <- mapply(findColumnbyColumn, columnSummary$column, "bendingCount", "NS")
+columnSummary$NSbendingmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingmeanBars", "NS")
+columnSummary$NSbendingstdBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingstdBars", "NS")
+columnSummary$EWBendingCount <- mapply(findColumnbyColumn, columnSummary$column, "bendingCount", "EW")
+columnSummary$EWbendingmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingmeanBars", "EW")
+columnSummary$EWbendingstdBars <- mapply(findColumnbyColumn, columnSummary$column, "bendingstdBars", "EW")
+
+columnSummary$NSShearCount <- mapply(findColumnbyColumn, columnSummary$column, "NSShearCount", "NS")
+columnSummary$NSShearmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "NSShearmeanBars", "NS")
+columnSummary$NSShearstdBars <- mapply(findColumnbyColumn, columnSummary$column, "NSShearstdBars", "NS")
+columnSummary$EWShearCount <- mapply(findColumnbyColumn, columnSummary$column, "EWShearCount", "EW")
+columnSummary$EWShearmeanBars <- mapply(findColumnbyColumn, columnSummary$column, "EWShearmeanBars", "EW")
+columnSummary$EWShearstdBars <- mapply(findColumnbyColumn, columnSummary$column, "EWShearstdBars", "EW")
+
+columnSummary$NSslabThickness <- mapply(findColumnbyColumn, columnSummary$column, "slabThickness", "NS")
+columnSummary$EWslabThickness <- mapply(findColumnbyColumn, columnSummary$column, "slabThickness", "EW")
+
+write.csv(columnSummary, "entirecolumnSummary.csv")
+```
+
+I hope you have seen the power and speed provided by R in regards to filtering and manipulating data.  R has even more capabilities shown beyond this basic functionality, as it is routinely used in data mining.
 
 #Code
 ```{r, eval=FALSE}

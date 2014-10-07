@@ -294,7 +294,7 @@ columns$NSShearstdBars &lt;- mapply(stdBars, &quot;NSShear&quot;, columns$Column
 columns$EWShearCount &lt;- mapply(findBars, &quot;EWShear&quot;,columns$Column.Manual, columns$Filename)
 columns$EWShearmeanBars &lt;- mapply(meanBars, &quot;EWShear&quot;,columns$Column.Manual, columns$Filename)
 columns$EWShearstdBars &lt;- mapply(stdBars,&quot;EWShear&quot;, columns$Column.Manual, columns$Filename)</code></pre>
-<p>In a similar fashion to the functions above</p>
+<p>In order to evaluate the strength of the slab we need the thickness of the slab in order to calculate the cover depth of the rebar. We can find the bottom of slab depth (identified through Radan) at each column location through the findNearestSlabThickness function below. This function works first by finding all of the bottom of slab data points for a given file name. Then a new data field called <em>close</em> is created that takes the distance between the column of interest and every bottom of slab point. All of the points are then placed in ascending order by the distance difference. The first point is then selected and added as an additional field to the <em>column</em> Data Frame.</p>
 <pre class="r"><code>findNearestSlabThickness &lt;- function(filename, dist){  
   depths &lt;- bottomSlab[(bottomSlab$Filename == filename),]
   
@@ -308,6 +308,41 @@ columns$EWShearstdBars &lt;- mapply(stdBars,&quot;EWShear&quot;, columns$Column.
 }
 
 columns$slabThickness &lt;- mapply(findNearestSlabThickness, columns$Filename, columns$Dist..ft.)</code></pre>
+<p>Since we have acquired all of the fields we need for each data point it feels like a good time to output the processing before the final aggregation. Let’s write the to a csv file with the <strong>write.csv()</strong> function. We’ll order the rows by column name since there will be multiple instances of each column within the file. The format to write to a csv is <strong>write.csv(<em>variable</em>, <em>filename</em>)</strong>.</p>
+<pre class="r"><code>write.csv(columns[with(columns, order(Column.Manual)), ], &quot;EntireColumnProcessedData.csv&quot;)</code></pre>
+<p>We have reached the final aggregation phase of the script. Here we will transform the data so each unique column is displayed on it’s own row with the relevant information that we calculated above. This step needs to be performed because each column is in two data files for each steel direction. This will allow us to compress the data into a more digestable format.</p>
+<p>We start by creating a new Data Frame called <em>columnSummary</em> based on the unique column names. Since this data field was unnamed in our conversion, we rename the field to “column” with the <strong>names(columnSummary) &lt;- “column”</strong> command. We then order all of the columns by level and then alphabetically. Since we already have the data we want in Data Frame field columns, let us define a function that can return the the specified field for a given column based on steel direction. We then apply this function to get each data field of interest for each bar direction. Each new data field gets assigned to a new column in the <em>columnSummary</em> Data Frame. We then write the file to a .csv as before. This results in a tabular .csv with the information shown at the beginning of the document.</p>
+<pre class="r"><code>columnSummary &lt;- data.frame(unique(columns$Column.Manual))
+names(columnSummary) &lt;- &quot;column&quot;
+columnSummary$column &lt;- columnSummary[with(columnSummary, order(column)),]
+
+ewColumns &lt;- columns[columns$Steel.Direction == &quot;EW&quot;,]
+nsColumns &lt;- columns[columns$Steel.Direction == &quot;NS&quot;,]
+
+findColumnbyColumn &lt;- function(pcol, columnName, direction)
+{
+  return(columns[(columns$Column.Manual == pcol) &amp; (columns$Steel.Direction == direction), columnName][1])
+}
+
+columnSummary$NSBendingCount &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;bendingCount&quot;, &quot;NS&quot;)
+columnSummary$NSbendingmeanBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;bendingmeanBars&quot;, &quot;NS&quot;)
+columnSummary$NSbendingstdBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;bendingstdBars&quot;, &quot;NS&quot;)
+columnSummary$EWBendingCount &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;bendingCount&quot;, &quot;EW&quot;)
+columnSummary$EWbendingmeanBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;bendingmeanBars&quot;, &quot;EW&quot;)
+columnSummary$EWbendingstdBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;bendingstdBars&quot;, &quot;EW&quot;)
+
+columnSummary$NSShearCount &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;NSShearCount&quot;, &quot;NS&quot;)
+columnSummary$NSShearmeanBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;NSShearmeanBars&quot;, &quot;NS&quot;)
+columnSummary$NSShearstdBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;NSShearstdBars&quot;, &quot;NS&quot;)
+columnSummary$EWShearCount &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;EWShearCount&quot;, &quot;EW&quot;)
+columnSummary$EWShearmeanBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;EWShearmeanBars&quot;, &quot;EW&quot;)
+columnSummary$EWShearstdBars &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;EWShearstdBars&quot;, &quot;EW&quot;)
+
+columnSummary$NSslabThickness &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;slabThickness&quot;, &quot;NS&quot;)
+columnSummary$EWslabThickness &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;slabThickness&quot;, &quot;EW&quot;)
+
+write.csv(columnSummary, &quot;entirecolumnSummary.csv&quot;)</code></pre>
+<p>I hope you have seen the power and speed provided by R in regards to filtering and manipulating data. R has even more capabilities shown beyond this basic functionality, as it is routinely used in data mining.</p>
 </div>
 </div>
 </div>
