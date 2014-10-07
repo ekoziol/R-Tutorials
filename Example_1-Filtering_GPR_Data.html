@@ -144,10 +144,92 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="excel-data-preparation" class="section level3">
 <h3>Excel Data Preparation</h3>
+<p>A list of the all column names is shown below.</p>
+<pre><code>##  [1] &quot;Filename&quot;                         &quot;File.number&quot;                     
+##  [3] &quot;Scan&quot;                             &quot;Dist..ft.&quot;                       
+##  [5] &quot;Scan.1&quot;                           &quot;Name&quot;                            
+##  [7] &quot;X2.Way.Time&quot;                      &quot;Depth.in.&quot;                       
+##  [9] &quot;File.Direction&quot;                   &quot;Steel.Direction&quot;                 
+## [11] &quot;Column.Manual&quot;                    &quot;Strip.Width.in.NS.direction..in.&quot;
+## [13] &quot;Strip.Width.in.NS.direction..ft.&quot; &quot;Strip.Width.in.EW.direction..in.&quot;
+## [15] &quot;Strip.Width.in.EW.direction..ft.&quot; &quot;UseStripWidth&quot;                   
+## [17] &quot;minStripDist&quot;                     &quot;maxStripDist&quot;                    
+## [19] &quot;NSPunchShearWidth&quot;                &quot;NSPunchShearMinDist&quot;             
+## [21] &quot;NSPunchShearMaxDist&quot;              &quot;EWPunchShearWidth&quot;               
+## [23] &quot;EWPunchShearMinDist&quot;              &quot;EWPunchShearMaxDist&quot;</code></pre>
+<p>The variables are defined as follows:</p>
+<div id="these-files-were-exported-from-radan" class="section level4">
+<h4>These files were exported from Radan</h4>
+<ul>
+<li>Filename: The name of the file being considered.</li>
+<li>File.number: The file number within the process batch</li>
+<li>Scan: The individual GPR scan number within a file. If you take 120 scan per foot, then one scan would be taken every 0.1 inches.</li>
+<li>Dist..ft.: The distance from the start of the file that the point of interest was observed.</li>
+<li>Scan.1: This was a repeated imported variable of scan and is not used.</li>
+<li>Name: The type of point observed, either Rebar, Column or Slab.</li>
+<li>x2.Way.Time: The measured two-way reflection time measured in ns.<br /></li>
+<li>Depth.in.: The depth of the point of interest based on the two-way reflection time and dielectric constant of the concrete.</li>
+</ul>
+</div>
+<div id="these-files-were-added-in-the-excel-file-in-order-to-aggregate-the-data-efficiently" class="section level4">
+<h4>These files were added in the Excel file in order to aggregate the data efficiently</h4>
+<ul>
+<li>File.Direction: A manually entered field based on the plan view of direction of the GPR file.</li>
+<li>Steel.Direction: A calculated field that was perpendicular to the scanning direction. This was used for aggregating the still within the correct column strip width.</li>
+<li>Column.manual: A manually entered field of the column name designation. For example 2-F4 would designate the column located on the second floor at lines F and 4.<br /></li>
+<li>Strip.Width.in.NS.direction..in.: A calculated field for the column strip width for the NS direction in inches.</li>
+<li>Strip.Width.in.NS.direction..ft.: A calculated field of the column strip width for the NS direction in feet based on the column location.</li>
+<li>Strip.Width.in.EW.direction..in.: A calculated field for the column strip width for the EW direction in inches.</li>
+<li>Strip.Width.in.EW.direction..ft.: A calculated field of the column strip width for the NS direction in feet based on the column location.</li>
+<li>UseStripWidth: A calculated field defining the column strip width to use based on the steel direction of the file.</li>
+<li>minStripDist: A calculated field of the lower bound of the x direction of the file to use for including steel in the column moment strip.</li>
+<li>maxStripDist: A calculated field of the upper bound of the x direction of the file to use for including steel in the column moment strip.</li>
+<li>NSPunchShearWidth: A calculated field for the punching NS shear width based on the column size and location.</li>
+<li>NSPunchShearMinDist: A calculated field of the lower bound of the x direction of the file to use for including steel in the NS punch shear zone.</li>
+<li>NSPunchShearMaxDist: A calculated field of the upper bound of the x direction of the file to use for including steel in the NS punch shear zone.</li>
+<li>EWPunchShearWidth: A calculated field for the punching EW shear width based on the column size and location.</li>
+<li>EWPunchShearMinDist: A calculated field of the lower bound of the x direction of the file to use for including steel in the EW punch shear zone.</li>
+<li>EWPunchShearMaxDist: A calculated field of the upper bound of the x direction of the file to use for including steel in the EW punch shear zone.</li>
+</ul>
+</div>
 </div>
 <div id="r-data-filtering-transformations" class="section level3">
 <h3>R data filtering transformations</h3>
 <p>The entire code used can be viewed at the end of this document. Here we will step through the code to explain functions and design decisions.</p>
+<p>We first load in the file into a Data Frame through the <em>read.csv()</em> command. We also save this Data Frame to a variable called data. The second part creates three separate Data Frame variables from the imported data. We select these variables based on the GPR annotated layer that occured during the initial post processing. Thus by calling <strong>bars &lt;- data[data$Name == “Rebar”,]</strong> we select all rows from data where the column <em>‘Name’</em> of <em>data</em> is equal to <em>‘Rebar’</em>. Adding the comma after this filter ensures that all of the data columns for these selected rows are transferred to the bars Data Frame variable.</p>
+<pre class="r"><code>data &lt;- read.csv(&quot;ENTIREGARAGERUN2.csv&quot;)
+
+bars &lt;- data[data$Name == &quot;Rebar&quot;,]
+columns &lt;- data[data$Name == &quot;Column&quot;,]
+bottomSlab &lt;- data[data$Name == &quot;BottomSlab&quot;,]</code></pre>
+<p>Next, we define a function called <em>findNearestColumn</em> that will be used to identify the closest column to each identified rebar. The function works by taking three inputs - bar type (bending, NSShear or EWShear), a file name and a distance that the rebar is located at. Based on these inputs the function filters the data to determine which column the rebar is closest to and if it is within the specified zone (column strip, NS or EW punching shear). If the rebar is found to be within the specified zone, the column name is returned. Otherwise a null value or <em>NA</em> is returned.</p>
+<p>We then use a function called <strong>mapply()</strong> that takes a function and a set of inputs for that function. If the set of inputs is a vector, the function will be applied over each set of inputs. Three new columns <em>PartOfColumnBending</em>,<em>NSPartofColumnPunching</em>, and <em>EWPartofColumnPunching</em> are defined with the <strong>mapply()</strong> function in order to state the column (or NA) for a given rebar in the respective zone.</p>
+<pre class="r"><code>findNearestColumn &lt;- function(type, f,x){
+   if(type == &quot;bending&quot;){
+    tempCols &lt;- data[(data$Filename == f) &amp; (data$minStripDist &lt;= x) &amp; (data$maxStripDist &gt;= x) &amp; (data$Name == &quot;Column&quot;),]
+   }
+   else if(type == &quot;NSShear&quot;){
+     tempCols &lt;- data[(data$Filename == f) &amp; (data$NSPunchShearMinDist &lt;= x) &amp; (data$NSPunchShearMaxDist &gt;= x) &amp; (data$Name == &quot;Column&quot;),]
+   }
+   else{
+     tempCols &lt;- data[(data$Filename == f) &amp; (data$EWPunchShearMinDist &lt;= x) &amp; (data$EWPunchShearMaxDist &gt;= x) &amp; (data$Name == &quot;Column&quot;),]
+   }
+  #print(tempCols$Column.Manual)
+  if(length(tempCols$Column.Manual) &gt; 0){
+#     print(as.character(tempCols$Column.Manual))
+    return(as.character(tempCols$Column.Manual))
+  }
+  else{
+#     print(NA)
+    return(NA)
+  }
+}
+
+
+
+bars$PartofColumnBending &lt;- mapply(findNearestColumn, &quot;bending&quot;, bars$Filename, bars$Dist..ft.)
+bars$NSPartofColumnPunching &lt;- mapply(findNearestColumn, &quot;NSShear&quot;, bars$Filename, bars$Dist..ft.)
+bars$EWPartofColumnPunching &lt;- mapply(findNearestColumn, &quot;EWShear&quot;, bars$Filename, bars$Dist..ft.)</code></pre>
 </div>
 </div>
 </div>
