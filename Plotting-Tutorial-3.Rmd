@@ -25,8 +25,10 @@ data(concrete)
 head(mixtures,10)
 ```
 
+In order to view the top ten rows to get a feel for the data we can use the **head(*dataframe*,*number of rows*)** command.
 
 
 #Plotting systems in R
 
-There are three main plotting systems in R - Base, Lattice and ggplot2.  
+There are three main plotting systems in R - Base, Lattice and ggplot2.  The Base plotting system runs out of the box on R, while the lattice and ggplot2 plotting systems need to be loaded with the appropriate library - **libray(lattice)** and **library(ggplot2)**.
+
