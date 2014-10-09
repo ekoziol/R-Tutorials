@@ -64,15 +64,15 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="problem" class="section level1">
 <h1>Problem</h1>
-<p>WJE was examining a parking garage that had questions of adequate steel placement. In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations. This resulted in over 140 individual GPR files of GPR data, each with multiple precast columns included. While processing of GPR data for steel locations and slab depths were time consuming but routine, there still remained the issue of how to relate all of the data points to the correct column strip. These data points then needed to be aggregated per column strip to find the average cover depth in order to determine where correct repairs were required.</p>
+<p>WJE was examining a parking garage to determine if the reinforcing steel was adeqautely placed for the required strength. In order to assess the parking garage, Ground Penetrating Radar (GPR) was used to identify steel locations. This resulted in over 140 individual files of GPR data, each with multiple precast columns included. Processing the GPR data for steel locations and slab depths was time consuming but routine. However, there still remained the issue of how to relate all of the data points to the correct column. These data points then needed to be aggregated per column strip and punching shear zones to find the average cover depth in order to determine where correct repairs were required.</p>
 </div>
 <div id="solution" class="section level1">
 <h1>Solution</h1>
-<p>In order to properly aggregate the data three steps needed to be peformed.</p>
+<p>In order to properly aggregate the data, three steps needed to be peformed.</p>
 <ol style="list-style-type: decimal">
-<li>Process the GPR data to identify the steel locations, each column’s location within a scan, and determine the slab thickness at each column. This data (file name, file number, scan, Dist(ft), scan, name(data point type [rebar, column, slab]), 2-way time, detph) was then exported to a .csv file via GSSI Radan software.</li>
-<li>After all of the data was exported, a second post processing step of identify the steel direction of each file as well as the column name of each column data point was required. The column strip width and punching shear width in both the N-S and E-W directions was also added to each column data point.</li>
-<li>After the data was processed into a aggregatable format, an R script was constructed as detailed later in order to perform the correct manipulations of the data. This included averaging only the bars within the stated column strip and punching shear zones of a given column. This resulted in a summary table that was exported to a .csv file. The data in each row was then analyzed under varying conditions to determine if the slab in that location was adequate or not. A portion of the summary has been shown below. Note that not all of the rows have been shown in order to keep the size of this document smaller.</li>
+<li>Process the GPR data to identify the steel locations, identify each column’s location within a scan, and determine the slab thickness at each column. This data (file name, file number, scan, Dist(ft), scan, name(data point type [rebar, column, slab]), 2-way time, detph) was then exported to a .csv file via GSSI Radan software.</li>
+<li>After all of the data was exported, a second post processing step of identifying the steel direction of each file as well as the column name of each column data point was required. The column strip width and punching shear width in both the N-S and E-W directions was also added to each column data point.</li>
+<li>After the data was processed into a aggregable format, an R script was constructed, as described later, in order to perform the correct manipulations of the data. This included averaging only the bars within the stated column strip and punching shear zones of a given column. This resulted in a summary table that was exported to a .csv file. The data in each row was then analyzed under varying conditions to determine if the slab in that location was adequate or not. A portion of the summary has been shown below. Note that not all of the rows have been shown in order to keep the size of this document smaller.</li>
 </ol>
 <pre><code>##    column NSBendingCount NSbendingmeanBars NSbendingstdBars
 ## 1    0-E5             18             3.683           0.2541
@@ -131,20 +131,20 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 ## 10   1-F8           12.59           11.65</code></pre>
 <div id="why-r" class="section level2">
 <h2>Why R?</h2>
-<p>R was selected due to its robustness in data processing over Excel. When new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime to account for new information. Instead a line or two of code were modified to provide the proper output. The development time required to create the R script was much shorter than would have been required to create an Excel template.</p>
+<p>R was selected because of its robustness in data processing over Excel. When new filters were added or needed to be modified, the raw data could be fed into R without having to manually change the template everytime to account for new information. Instead, a line or two of code were modified to provide the proper output. The development time required to create the R script was much shorter than would have been required to create an Excel template.</p>
 <div id="gpr-post-processing" class="section level3">
 <h3>GPR Post Processing</h3>
-<p>Using GSSI Radan software, three different types of points were selected. The three different types had a separate ‘Focus’ created in the Interactive BridgeScan mode. They were selected and labeled as stated below:</p>
+<p>Using GSSI Radan software, three different types of points were selected. The three different types had a separate ‘Focus’ created in the Interactive BridgeScan mode. They were selected and labeled as described below:</p>
 <ol style="list-style-type: decimal">
-<li>Rebar top steel was identified as pink dots and labeled as ‘Rebar’.</li>
-<li>The bottom of the slab was identified as yellow dots and labeled as ‘Slab’.</li>
-<li>The columns were identified as orange dots and labeld as ‘Column’.</li>
+<li>Rebar top steel was identified as pink dots and labeled as <em>Rebar</em>.</li>
+<li>The bottom of the slab was identified as yellow dots and labeled as <em>Slab</em>.</li>
+<li>The columns were identified as orange dots and labeld as <em>Column</em>.</li>
 </ol>
-<p>While it took considerable time to identify these points, it is somewhat standard of a procedure for processing GPR data.</p>
+<p>While it took considerable time to identify these points, it is a somewhat standard of procedure for processing GPR data.</p>
 </div>
 <div id="excel-data-preparation" class="section level3">
 <h3>Excel Data Preparation</h3>
-<p>A list of the all column names is shown below.</p>
+<p>A list of all of the column names is shown below.</p>
 <pre><code>##  [1] &quot;Filename&quot;                         &quot;File.number&quot;                     
 ##  [3] &quot;Scan&quot;                             &quot;Dist..ft.&quot;                       
 ##  [5] &quot;Scan.1&quot;                           &quot;Name&quot;                            
@@ -158,25 +158,25 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 ## [21] &quot;NSPunchShearMaxDist&quot;              &quot;EWPunchShearWidth&quot;               
 ## [23] &quot;EWPunchShearMinDist&quot;              &quot;EWPunchShearMaxDist&quot;</code></pre>
 <p>The variables are defined as follows:</p>
-<div id="these-files-were-exported-from-radan" class="section level4">
-<h4>These files were exported from Radan</h4>
+<div id="variables-exported-from-radan" class="section level4">
+<h4>Variables Exported from Radan</h4>
 <ul>
 <li>Filename: The name of the file being considered.</li>
-<li>File.number: The file number within the process batch</li>
+<li>File.number: The file number within the process batch.</li>
 <li>Scan: The individual GPR scan number within a file. If you take 120 scan per foot, then one scan would be taken every 0.1 inches.</li>
 <li>Dist..ft.: The distance from the start of the file that the point of interest was observed.</li>
-<li>Scan.1: This was a repeated imported variable of scan and is not used.</li>
+<li>Scan.1: This was a repeated imported variable of the scan and is not used.</li>
 <li>Name: The type of point observed, either Rebar, Column or Slab.</li>
 <li>x2.Way.Time: The measured two-way reflection time measured in ns.<br /></li>
 <li>Depth.in.: The depth of the point of interest based on the two-way reflection time and dielectric constant of the concrete.</li>
 </ul>
 </div>
-<div id="these-files-were-added-in-the-excel-file-in-order-to-aggregate-the-data-efficiently" class="section level4">
-<h4>These files were added in the Excel file in order to aggregate the data efficiently</h4>
+<div id="variables-added-in-the-excel-file-in-order-to-aggregate-the-data-efficiently" class="section level4">
+<h4>Variables Added in the Excel File in Order to Aggregate the Data Efficiently</h4>
 <ul>
 <li>File.Direction: A manually entered field based on the plan view of direction of the GPR file.</li>
 <li>Steel.Direction: A calculated field that was perpendicular to the scanning direction. This was used for aggregating the still within the correct column strip width.</li>
-<li>Column.manual: A manually entered field of the column name designation. For example 2-F4 would designate the column located on the second floor at lines F and 4.<br /></li>
+<li>Column.manual: A manually entered field of the column name designation. For example, 2-F4 would designate the column located on the second floor at lines F and 4.<br /></li>
 <li>Strip.Width.in.NS.direction..in.: A calculated field for the column strip width for the NS direction in inches.</li>
 <li>Strip.Width.in.NS.direction..ft.: A calculated field of the column strip width for the NS direction in feet based on the column location.</li>
 <li>Strip.Width.in.EW.direction..in.: A calculated field for the column strip width for the EW direction in inches.</li>
@@ -194,16 +194,16 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 </div>
 <div id="r-data-filtering-transformations" class="section level3">
-<h3>R data filtering transformations</h3>
-<p>The entire code used can be viewed at the end of this document. Here we will step through the code to explain functions and design decisions.</p>
-<p>We first load in the file into a Data Frame through the <em>read.csv()</em> command. We also save this Data Frame to a variable called data. The second part creates three separate Data Frame variables from the imported data. We select these variables based on the GPR annotated layer that occured during the initial post processing. Thus by calling <strong>bars &lt;- data[data$Name == “Rebar”,]</strong> we select all rows from data where the column <em>‘Name’</em> of <em>data</em> is equal to <em>‘Rebar’</em>. Adding the comma after this filter ensures that all of the data columns for these selected rows are transferred to the bars Data Frame variable.</p>
+<h3>R Data Filtering Transformations</h3>
+<p>The entire project code can be viewed at the end of this document. Here we will step through the code to explain functions and design decisions.</p>
+<p>We first load the file into a Data Frame through the <em>read.csv()</em> command. We also save this Data Frame to a variable called <em>data</em>. The second part of the code below creates three separate Data Frame variables from the imported data. We select these variables based on the GPR annotated layer that occured during the initial post processing. Thus, by calling <strong>bars &lt;- data[data$Name == “Rebar”,]</strong>, we select all rows from data where the column <em>‘Name’</em> of <em>data</em> is equal to <em>‘Rebar’</em>. Adding the comma after this filter ensures that all of the data columns for these selected rows are transferred to the bars Data Frame variable.</p>
 <pre class="r"><code>data &lt;- read.csv(&quot;ENTIREGARAGERUN2.csv&quot;)
 
 bars &lt;- data[data$Name == &quot;Rebar&quot;,]
 columns &lt;- data[data$Name == &quot;Column&quot;,]
 bottomSlab &lt;- data[data$Name == &quot;BottomSlab&quot;,]</code></pre>
-<p>Next, we define a function called <em>findNearestColumn</em> that will be used to identify the closest column to each identified rebar. The function works by taking three inputs - bar type (bending, NSShear or EWShear), a file name and a distance that the rebar is located at. Based on these inputs the function filters the data to determine which column the rebar is closest to and if it is within the specified zone (column strip, NS or EW punching shear). If the rebar is found to be within the specified zone, the column name is returned. Otherwise a null value or <em>NA</em> is returned.</p>
-<p>We then use a function called <strong>mapply()</strong> that takes a function and a set of inputs for that function. If the set of inputs is a vector, the function will be applied over each set of inputs. Three new columns <em>PartOfColumnBending</em>,<em>NSPartofColumnPunching</em>, and <em>EWPartofColumnPunching</em> are defined with the <strong>mapply()</strong> function in order to state the column (or NA) for a given rebar in the respective zone.</p>
+<p>Next, we define a function called <em>findNearestColumn</em> that will be used to identify the closest column to each identified rebar. The function works by taking three inputs: bar type (bending, NSShear or EWShear), a file name and a distance that the rebar is located at. Based on these inputs, the function filters the data to determine which column the rebar is closest to and if it is within the specified zone (column strip, NS or EW punching shear). If the rebar is found to be within the specified zone, the column name is returned. Otherwise a null value or <em>NA</em> is returned.</p>
+<p>We then use a function called <strong>mapply()</strong> that takes inputs of the name of another function and a set of inputs for that function. If the set of inputs is a vector, the function will be applied over each set of inputs. Three new columns <em>PartOfColumnBending</em>, <em>NSPartofColumnPunching</em>, and <em>EWPartofColumnPunching</em> are defined with the <strong>mapply()</strong> function in order to state the column (or NA) for a given rebar in the respective zone.</p>
 <pre class="r"><code>findNearestColumn &lt;- function(type, f,x){
    if(type == &quot;bending&quot;){
     tempCols &lt;- data[(data$Filename == f) &amp; (data$minStripDist &lt;= x) &amp; (data$maxStripDist &gt;= x) &amp; (data$Name == &quot;Column&quot;),]
@@ -230,8 +230,8 @@ bottomSlab &lt;- data[data$Name == &quot;BottomSlab&quot;,]</code></pre>
 bars$PartofColumnBending &lt;- mapply(findNearestColumn, &quot;bending&quot;, bars$Filename, bars$Dist..ft.)
 bars$NSPartofColumnPunching &lt;- mapply(findNearestColumn, &quot;NSShear&quot;, bars$Filename, bars$Dist..ft.)
 bars$EWPartofColumnPunching &lt;- mapply(findNearestColumn, &quot;EWShear&quot;, bars$Filename, bars$Dist..ft.)</code></pre>
-<p>Now that we have a column and zone associated with each rebar, we can begin to aggregate the data based on the column name. The three functions listed below, <em>findBars</em>, <em>meanBars</em>, and <em>stdBars</em>, all take the same inputs. Those inputs are zone type (column strip, NS or EW punching shear), the column name and the filename. Each of these functions filters the <em>bar</em> Data Frame to select only the bars that are within the specified zone, for the specified column in the specified file. The <em>findBars</em> returns the number of bars for the given inputs, <em>meanBars</em> returns the mean average depth of the bars, and <em>stdBars</em> returns the standard deviation of the depth of bars.</p>
-<p>We then apply these functions to create nine fields that detail the pertinent information we are looking at: the number of bars, the average depth of bar and the standard deviation of bars for the column strip, NS punching shear and EW punching shear of each column. Note that these nine fields are added to the <em>column</em> Data Frame for more convienent aggregating later. We also apply these function over each row in the <em>column</em> Data Frame.</p>
+<p>Now that we have a column and zone associated with each rebar, we can begin to aggregate the data based on the column name. The three functions listed below (<strong>findBars()</strong>, <strong>meanBars()</strong>, and <strong>stdBars()</strong>) all take the same inputs. Those inputs are zone type (column strip, NS or EW punching shear), the column name, and the filename. Each of these functions filters the <em>bar</em> Data Frame to select only the bars that are within the specified zone for the specified column in the specified file. The <strong>findBars()</strong> function returns the number of bars for the given inputs, <strong>meanBars()</strong> returns the mean average depth of the bars, and <strong>stdBars()</strong> returns the standard deviation of the depth of bars.</p>
+<p>We then apply these functions to create nine fields that detail the pertinent information we are looking at: the number of bars, the average depth of bar and the standard deviation of bars for the column strip, NS punching shear and EW punching shear, of each column. Note that these nine fields are added to the <em>column</em> Data Frame for more convenient aggregating later. We also apply these functions over each row in the <em>column</em> Data Frame.</p>
 <pre class="r"><code>findBars &lt;- function(type, column,filename){
    if(type == &quot;bending&quot;){
     tempBars &lt;- bars[(bars$PartofColumnBending == column) 
@@ -294,7 +294,7 @@ columns$NSShearstdBars &lt;- mapply(stdBars, &quot;NSShear&quot;, columns$Column
 columns$EWShearCount &lt;- mapply(findBars, &quot;EWShear&quot;,columns$Column.Manual, columns$Filename)
 columns$EWShearmeanBars &lt;- mapply(meanBars, &quot;EWShear&quot;,columns$Column.Manual, columns$Filename)
 columns$EWShearstdBars &lt;- mapply(stdBars,&quot;EWShear&quot;, columns$Column.Manual, columns$Filename)</code></pre>
-<p>In order to evaluate the strength of the slab we need the thickness of the slab in order to calculate the cover depth of the rebar. We can find the bottom of slab depth (identified through Radan) at each column location through the findNearestSlabThickness function below. This function works first by finding all of the bottom of slab data points for a given file name. Then a new data field called <em>close</em> is created that takes the distance between the column of interest and every bottom of slab point. All of the points are then placed in ascending order by the distance difference. The first point is then selected and added as an additional field to the <em>column</em> Data Frame.</p>
+<p>To evaluate the strength of the slab, we first need the thickness of the slab in order to calculate the cover depth of the rebar. We can find the bottom of slab depth (identified through Radan) at each column location through the <strong>findNearestSlabThickness()</strong> function below. This function works first by finding all of the bottom of slab data points for a given file name. Then a new data field called <em>close</em> is created that takes the distance between the column of interest and every bottom of slab point. All of the points are then placed in ascending order by the distance difference. The first point is then selected and added as an additional field to the <em>column</em> Data Frame.</p>
 <pre class="r"><code>findNearestSlabThickness &lt;- function(filename, dist){  
   depths &lt;- bottomSlab[(bottomSlab$Filename == filename),]
   
@@ -308,10 +308,10 @@ columns$EWShearstdBars &lt;- mapply(stdBars,&quot;EWShear&quot;, columns$Column.
 }
 
 columns$slabThickness &lt;- mapply(findNearestSlabThickness, columns$Filename, columns$Dist..ft.)</code></pre>
-<p>Since we have acquired all of the fields we need for each data point it feels like a good time to output the processing before the final aggregation. Let’s write the to a csv file with the <strong>write.csv()</strong> function. We’ll order the rows by column name since there will be multiple instances of each column within the file. The format to write to a csv is <strong>write.csv(<em>variable</em>, <em>filename</em>)</strong>.</p>
+<p>Since we have acquired all of the fields we need for each data point, it is a good time to output the processing before the final aggregation. Let’s write this to a csv file with the <strong>write.csv()</strong> function. We’ll order the rows by column name since there will be multiple instances of each column within the file. The format to write to a csv is <strong>write.csv(<em>variable</em>, <em>filename</em>)</strong>.</p>
 <pre class="r"><code>write.csv(columns[with(columns, order(Column.Manual)), ], &quot;EntireColumnProcessedData.csv&quot;)</code></pre>
-<p>We have reached the final aggregation phase of the script. Here we will transform the data so each unique column is displayed on it’s own row with the relevant information that we calculated above. This step needs to be performed because each column is in two data files for each steel direction. This will allow us to compress the data into a more digestable format.</p>
-<p>We start by creating a new Data Frame called <em>columnSummary</em> based on the unique column names. Since this data field was unnamed in our conversion, we rename the field to “column” with the <strong>names(columnSummary) &lt;- “column”</strong> command. We then order all of the columns by level and then alphabetically. Since we already have the data we want in Data Frame field columns, let us define a function that can return the the specified field for a given column based on steel direction. We then apply this function to get each data field of interest for each bar direction. Each new data field gets assigned to a new column in the <em>columnSummary</em> Data Frame. We then write the file to a .csv as before. This results in a tabular .csv with the information shown at the beginning of the document.</p>
+<p>We have reached the final aggregation phase of the script. Here we will transform the data so each unique column is displayed on its own row with the relevant information that we calculated above. This step needs to be performed because each column is in two data files for each steel direction. This will allow us to compress the data into a more digestable format.</p>
+<p>We start by creating a new Data Frame called <em>columnSummary</em> based on the unique column names. Since this data field was unnamed in our conversion, we rename the field to “column” with the <strong>names(columnSummary) &lt;- “column”</strong> command. We then order all of the columns by level and then alphabetically. Since we already have the data we want in Data Frame field columns, let us define a function called **findColumnbyColumn()* that can return the the specified field for a given column based on steel direction. We then apply this function to get each data field of interest for each bar direction. Each new data field gets assigned to a new column in the <em>columnSummary</em> Data Frame. We then write the file to a .csv as before. This results in a tabular .csv with the information shown at the beginning of this document.</p>
 <pre class="r"><code>columnSummary &lt;- data.frame(unique(columns$Column.Manual))
 names(columnSummary) &lt;- &quot;column&quot;
 columnSummary$column &lt;- columnSummary[with(columnSummary, order(column)),]
@@ -342,12 +342,12 @@ columnSummary$NSslabThickness &lt;- mapply(findColumnbyColumn, columnSummary$col
 columnSummary$EWslabThickness &lt;- mapply(findColumnbyColumn, columnSummary$column, &quot;slabThickness&quot;, &quot;EW&quot;)
 
 write.csv(columnSummary, &quot;entirecolumnSummary.csv&quot;)</code></pre>
-<p>I hope you have seen the power and speed provided by R in regards to filtering and manipulating data. R has even more capabilities shown beyond this basic functionality, as it is routinely used in data mining.</p>
+<p>I hope you have seen the power and speed provided by R in regards to filtering and manipulating data. R is routinely used in data mining, thus it has even more capabilities than shown in this document on basic functionality.</p>
 </div>
 </div>
 </div>
-<div id="code" class="section level1">
-<h1>Code</h1>
+<div id="project-code" class="section level1">
+<h1>Project Code</h1>
 <pre class="r"><code>##GPR steel aggregator by column
 ##Eric Koziol
 ##July 14, 2014
