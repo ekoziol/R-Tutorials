@@ -2,51 +2,116 @@
 ##Example 2 - Repair Statistics
 ###*Eric Koziol*
 
-```{r}
-library(lattice)
-library(ggplot2)
-library(reshape2)
-haunches <- read.csv("Examples/Example_2_Data/Haunches.csv", header=FALSE)
-names(haunches) <- c("bent", "currentRepair", "differentStates","haunch", "haunchid", "id", "inRepairSet", "inspected",  "itemsComplete", "span", "specifiedRepair", "Stage")
-
-haunchesInRepairs <- haunches[haunches$inRepairSet == 1,]
-```
-
 #Problem
-WJE is overseeing repairs of elevated rails and needs to understand the status of areas that are being completed.  Additionally, better visualization of repair locations is needed.
+WJE is previously provided repair documents for 18,000+ haunch locations of an elevated rail line. Due to the clients lack of funds only a portion of those are going to be repaired by a contractor.  WJE will be overseeing the repair construction and needs to understand the status of areas that are being completed.  The repairs will be ongoing over a two year period.  The PM would like to spend a minimal amount of time reporting and reducing data to follow the progress of the contractor.  
 
 
 #Solution
-WJE created a digital inspection system for field inspectors to track the completion of repairs.  While the data collection system is robust, the reporting mechanisms are not.  The data is routinely exported into R for digestion of analysis and tracking of progress.
+WJE created a digital inspection system for field inspectors to track the completion of repairs.  While the data collection system is robust, the built-in reporting mechanisms are not.  The data is routinely exported into R for digestion of analysis and tracking of progress.  Once the data is exported, we simply run the script to get status graphs for each bent in a single plot.  Note that only a portion of the bents are shown here in order to keep the document shorter.
+
+
 ```{r, echo=FALSE}
+library(lattice)
+library(ggplot2)
+library(reshape2)
+library(plyr)
+haunches <- read.csv("Haunches.csv", header=FALSE)
+names(haunches) <- c("bent", "currentRepair", "differentStates","haunch", "haunchid", "id", "inRepairSet", "inspected",  "itemsComplete", "span", "specifiedRepair", "Stage")
+
+haunchesInRepairs <- haunches[haunches$inRepairSet == 1,]
+
+```
+
+```{r, echo=FALSE, message = FALSE, warnings = FALSE}
 repairStagesMelt <- melt(haunchesInRepairs[,c("bent", "Stage", "currentRepair")], id.vars=c("bent", "currentRepair"))
 repairStagesMelt$value <- as.factor(repairStagesMelt$value)
+repairStagesMelt$value <- revalue(repairStagesMelt$value, c("0"="Not Yet Started", "1"="Stage 1 Complete", "2" = "Stage 2 Complete", "3" = "Stage 3 Complete", "4" = "Stage 4 Complete", "5" = "Stage 5 complete", "6" = "Repair Completed and WJE Approved"))
+```
+
+```{r,  fig.height = 76, message = FALSE, warnings = FALSE}
+ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs")
+```
+
+
+###Walkthrough
+In order to get started with this analysis we will first load up a few packages.  We load ***ggplot2*** as our graphing library, ***reshape2*** to manipulate our data into a long Data Frame (to be explained later), and the ***plyr*** package for methods that allow ease of altering values.
+
+Next, we load our .csv of data into a Data Frame named *haunches*.  We use the '*header*=FALSE' option because there is no header in our data file, as the digital inspection system does not allow for exporting with a header.  Since no header is in the data file, we rename the columns from arbitrary names assigned by R to column names that have meaning.
+
+The third step is to look only at the bridge haunch repairs that are in the current round of repairs.  We do this by filtering the data to select only those values within the repair set with **haunches[haunches$inRepairSet == 1,]**.
+```{r, eval=FALSE}
+library(ggplot2)
+library(reshape2)
+library(plyr)
+
+haunches <- read.csv("Haunches.csv", header=FALSE)
+names(haunches) <- c("bent", "currentRepair", "differentStates","haunch", "haunchid", "id", "inRepairSet", "inspected",  "itemsComplete", "span", "specifiedRepair", "Stage")
+
+haunchesInRepairs <- haunches[haunches$inRepairSet == 1,]
 
 ```
 
-```{r, fig.height=300, message = FALSE, warnings = FALSE}
-ggplot(repairStagesMelt, aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 2)
+For our current reporting purposes, we want to understand the level of repair completion for each bent.  We would like to be able to have a breakdown of the completion level for each repair type within the bent.  For this project, there are seven levels of completion for a repair: Not Yet Start, Stage 1 Completed, Stage 2 Completed, Stage 3 Completed, Stage 4 Completed, Stage 5 Completed, and Repair Completed with WJE Approval. The only relevant fields for this breakdown are *bent*, *Stage*, and *currentRepair*.
+
+In order to create a simply executed graph that can breakdown the data in the way we wish, we need to create a long Data Frame.  A wide Data Frame is what we normally think of as a Data Frame, each row corresponds to an observation with the corresponding fields.  Using the data we just loaded above, our wide Data Frame *haunches* has `r length(names(haunches))` columns and `r nrow(haunches)` rows.  On the other hand, a long Data Frame makes each row a variable after designating id variables.  For instance, if we specified *id* in our *haunches* Data Frame as the id variable, we would have 11 rows for every observation.  This would result in a Data Frame with only three columns - *id*, *variable* and *value*.  Thus our number of rows would become `r nrow(haunches)*11`.
+
+```{r, echo=FALSE, warnings = FALSE, message=FALSE}
+print("Wide Data Frame Example")
+head(haunches)
+
+print("Long Data Frame Example")
+melt(head(haunches), id.vars="id")
 ```
 
+To create the long Data Frame, we use the **melt()** function from the ***reshape2*** library.  Before melting our *haunchesInRepairs* Data Frame, we first filter it to only include the columns we are concerned about.  This can be performed within the **melt()** function.  We then specifiy the id variables as *bent* and *currentRepair*.  Since the values of the *Stage* variable are numeric, they will be treated as continuous values which will affect how the graph is shown.  To counteract this, we convert the values to a *factor* type variable which will treat the values as discrete text.  We then change these database values to something more meaningful with the **revalue()** function from the ***plyr*** package. This allows us to rename the current values with our own corresponding values.
 
-```{r, fig.height=100}
+```{r, message = FALSE, warnings = FALSE, eval=FALSE}
+repairStagesMelt <- melt(haunchesInRepairs[,c("bent", "Stage", "currentRepair")], id.vars=c("bent", "currentRepair"))
+repairStagesMelt$value <- as.factor(repairStagesMelt$value)
+repairStagesMelt$value <- revalue(repairStagesMelt$value, c("0"="Not Yet Started", "1"="Stage 1 Complete", "2" = "Stage 2 Complete", "3" = "Stage 3 Complete", "4" = "Stage 4 Complete", "5" = "Stage 5 complete", "6" = "Repair Completed with WJE Approval"))
+```
+
+After our data is the format we want, we can now begin plotting.  We will use the ***ggplot2*** package for plotting since it readily creates complex graphics in a presentable format.  Constructing a **ggplot** graphic can be thought of as creating a base graphic then adding new features to it.  We use the **ggplot()** command first which generates the groundwork for our plot based on the the data **repairStagesMelt[repairStagesMelt$bent < 220,]**, which is filtering our data to limit the number of rows for the plot.  We also have a sub-function called **aes()** that maps data to visual properties.  In this instance we want our *x* values to be the *currentRepair* type and the color *fill* of the graph to be the *value* column of our data.  Next we add the **geom_bar()** function which will create a histogram of our data.  Additionally, since we specified *x* as the *currentRepair* it will create a stacked bar graph for each repair type.  That is to say that if we have a repair type that has 2 counts of Stage 1 Complete and 3 counts of Stage 5 Complete, the entire bar will be 5 units long with two segments - one 2 units long and the other 3 units long.  We then add text under each bar using **geom_text()** to give a repair label to each bar.  Normally the X-axis label could just be used but since our graphic is so large, it allows us to readily know what each bar means.  The **facet_wrap()** function is very powerful because it takes the data and splits it up by whichever column we choose.  In this instance, we chose the *bent* data column which creates a separate graph within our plot for each individaul bent.  The effect is that we will have a stacked bar histogram of the repair types and status broken down at the bent level.  We then rename the x and y labels with **xlab()** and **ylab()** for better formatting.
+
+```{r,  fig.height = 76, message = FALSE, warnings = FALSE, eval=FALSE}
+ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs")
+```
+
+Now we have a script that can be run daily, weekly or monthly that will generate many plots of our data that brings clarity to our issue.  We just have to export the data from our digital inspection system and run the script to output the plots.  For a small amount of effort, we created a very powerful status report that requires next to no future effort.  I hope you can see the power of R's plotting capabilities in better understanding your data.
+
+####Project Code
+
+```{r, eval=FALSE}
+library(lattice)
+library(ggplot2)
+library(reshape2)
+library(plyr)
+
+haunches <- read.csv("Haunches.csv", header=FALSE)
+names(haunches) <- c("bent", "currentRepair", "differentStates","haunch", "haunchid", "id", "inRepairSet", "inspected",  "itemsComplete", "span", "specifiedRepair", "Stage")
+
+haunchesInRepairs <- haunches[haunches$inRepairSet == 1,]
+
+repairStagesMelt <- melt(haunchesInRepairs[,c("bent", "Stage", "currentRepair")], id.vars=c("bent", "currentRepair"))
+repairStagesMelt$value <- as.factor(repairStagesMelt$value)
+repairStagesMelt$value <- revalue(repairStagesMelt$value, c("0"="Not Yet Started", "1"="Stage 1 Complete", "2" = "Stage 2 Complete", "3" = "Stage 3 Complete", "4" = "Stage 4 Complete", "5" = "Stage 5 complete", "6" = "Repair Completed and WJE Approved"))
+
+ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs")
+
+```
+
+```{r, fig.height=100, echo=FALSE}
 #names(septaRepairs)
-histogram(~currentRepair|factor(bent), layout=c(2,52), data = haunches[with(haunches, order(-bent)),], labels=TRUE, type="count")
+# histogram(~currentRepair|factor(bent), layout=c(2,52), data = haunches[with(haunches, order(-bent)),], labels=TRUE, type="count")
 
+# ggplot(data=haunchesInRepairs, aes(x=currentRepair, fill=currentRepair)) + geom_histogram() + geom_text(aes(y=-0.5, label=currentRepair)) + stat_bin(binwidth=1, geom="text", aes(label=..count..), vjust=-0.5) + facet_wrap(~bent, ncol=2)
 
-```
+# library(scales)
+# haunchesMelt <- melt(haunchesInRepairs[,c("bent", "Stage")], id.vars="bent")
+# head(haunchesMelt,10)
+# str(haunchesMelt)
+# haunchesMelt$value <- as.factor(haunchesMelt$value)
+# str(haunchesMelt)
 
-```{r, fig.height=300, message = FALSE, warnings = FALSE}
-ggplot(data=haunchesInRepairs, aes(x=currentRepair, fill=currentRepair)) + geom_histogram() + geom_text(aes(y=-0.5, label=currentRepair)) + stat_bin(binwidth=1, geom="text", aes(label=..count..), vjust=-0.5) + facet_wrap(~bent, ncol=2)
-```
-
-```{r}
-
-library(scales)
-haunchesMelt <- melt(haunchesInRepairs[,c("bent", "Stage")], id.vars="bent")
-head(haunchesMelt,10)
-str(haunchesMelt)
-haunchesMelt$value <- as.factor(haunchesMelt$value)
-str(haunchesMelt)
 ```
 
