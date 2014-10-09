@@ -11,10 +11,10 @@ output: html_document
 
 
 ##What is a Data Frame?
-A Data Frame in R is a special way of representing tabular data within a signle variable.  It has the added benefit of allowing us to access columns by name and filtering data based on values.
+A Data Frame in R is a special way of representing tabular data within a single variable.  It has the added benefit of allowing you to access data columns by name and filter data based on values.
 
 ##Using Data Frames
-R comes in with some built in datasets.  Let's open up the mtcars dataset which contains information about some cars rated by MotorTrend Magazine in the 1970's.
+R comes with some built-in datasets.  Let's open up the mtcars dataset which contains information about some cars rated by MotorTrend Magazine in the 1970's.
 
 ```{r}
 #load the data set
@@ -24,53 +24,54 @@ data(mtcars)
 cars <- mtcars
 ```
 
-If you look in your environment window, you will notice a variable Data variable named cars.  It should have 32 observations with 11 variables.  Click on cars to view the mtcars data. Alternatively, we can view the data by typing 'cars' (no quotes) into the R Console.
+If you look in your environment window, you will notice a  Data variable named *cars*.  It should have 32 observations with 11 variables.  Click on *cars* to view the *mtcars* data. Alternatively, you can view the data by typing 'cars' (no quotes) into the R Console.
 
 ```{r}
 cars
 ```
 
 ###Accessing Data
-In order to do useful things with Data Frames we need to be able to access the data.  To access a particular column of data we simply write the variable name followed by $ followed by the column name.  For instance, to get a list of the horsepower for each car we would type:
+In order to do useful things with Data Frames, you need to be able to access the data.  To access a particular column of data, you simply write the variable name, followed by $, then column name.  For instance, to get a list of the horsepower for each car you would type:
 
 ```{r}
 cars$hp
 ```
 
-Notice that this is a single column array, there are no car names attached to the data.  If we view the cars Data Frame we also notice that there is no column name for the car names.  This is because instead of labeling the rows 1,2,3... the rows are labeled by the car name.  To get a list of all of the car names type
+Notice that this is a single column array; there are no car names attached to the data.  If you view the 
+*cars* Data Frame you also notice that there is no column name for the car names.  This is because instead of labeling the rows 1,2,3... the rows are labeled by the car name, not by numbers.  To get a list of all of the car names type
 
 ```{r}
 rownames(cars)
 ```
 
-If we were interested in unique values for engine cylinders were in this list we would type:
+If you wanted the unique values for engine cylinders in this list, you would type:
 
 ```{r}
 unique(cars$cyl)
 ```
 
-We could also plot a quick and dirty histogram of the distribution of cylinders within this dataset by typing:
+You could also plot a quick and dirty histogram of the distribution of cylinders within this dataset by typing:
 
 ```{r}
 hist(cars$cyl)
 ```
 
-While this isn't the prettiest plot, it gets the idea across quickly.  Much prettier plotting options will be shown in later tutorials.
+While this isn't the prettiest plot, it gets the idea across quickly.  Other plotting options will be shown in later tutorials that allow for great presentability.
 
 ###Filtering Data
-Getting certain columns from a Data Frame can be helpful but perhaps we need to filter data conditionally for our analysis.  Data Frames have built in methods specifically for this purpose.  In order to filter by either columns or rows we use square brackets after the variable name.  In our case this would be 'cars[]'.  Now, if we think of a Data Frame as a matrix then the indices of the rows and columns are given by [rows,columns].  In the case of our 'cars' variable this would be a [32,11] matrix. For instance if we wanted the 3rd column of the 5th row we would type:
+Getting certain columns from a Data Frame can be helpful, but perhaps you need to filter data conditionally for your analysis.  Data Frames have built in methods specifically for this purpose.  In order to filter by either columns or rows, you use square brackets after the variable name.  In the current example this would be 'cars[]'.  Now, if you think of a Data Frame as a matrix, then the indices of the rows and columns are given by [rows,columns].  In the case of the *cars* variable this would be a [32,11] matrix. If you wanted the 3rd column of the 5th row, you would type:
 
 ```{r}
 cars[5,3]
 ```
 
-We can observe the 5th row to be the Hornet Sportabout, while the 3rd column is disp (engine displacement).  The value at this point is 360.  Alternatively if wanted all of the columns for the 5th row we simply leave out the 3 and keep the comma as such:
+You can observe the 5th row to be the Hornet Sportabout, while the 3rd column is disp (engine displacement).  The value at this point is 360.  Alternatively if wanted all of the columns for the 5th row, you simply leave out the 3 and keep the comma as such:
 
 ```{r}
 cars[5,]
 ```
 
-If we wanted the displacement column we could call it out either by number, name or with the dollar sign notation.  Below we show all three methods and you can see the output is the same.
+If you wanted the displacement column, you could call it out either by number, name, or with the dollar sign notation.  Below all three methods are shown and you can see that the output is the same.
 
 ```{r}
 cars[,3]
@@ -78,25 +79,25 @@ cars[,"disp"]
 cars$disp
 ```
 
-If we want more than one column we can include them as an array.  For instance
+If you want more than one column, you can include them as an array.  For instance:
 
 ```{r}
 cars[,c("mpg","cyl","disp")]
 ```
 
-Now conditional filtering messes with this notation as a little bit.  We can think of conditional filtering as selecting our rows.  This means that if we want all the columns displayed, we need to leave a comma at the end of the filter.  We can filter with conditional statements such *equal to* **==**, *greater than* **>** and *less than* **<**.  We can also combine these with boolean logic of *and* **&** statements and *or* **|** statements.  We can apply these filters to Data Frame columns such as **cars$mpg > 150**.  If we wanted to find all the rows where the miles per gallon are above 20 and the displacement are less than 150 we would use:
+You can use conditional filtering but the notation is slightly different.  You can think of conditional filtering as selecting your rows.  This means that if you want all the columns displayed, you need to leave a comma at the end of the filter.  you can filter with conditional statements such as *equal to* **==**, *greater than* **>** and *less than* **<**.  you can also combine these with boolean logic of *and* **&** statements and *or* **|** statements.  you can apply these filters to Data Frame columns such as **cars$mpg > 150**.  If you wanted to find all of the rows where the miles per gallon rating is above 20 and the displacement is less than 150 you would use:
 
 ```{r}
 cars[cars$mpg>20 & cars$disp < 150,]
 ```
 
-Note that we need the comma at the entire in order to return all the columns and not cause an error.  If we wanted to control the columns that were shown we could add columns to the filter as well.  If we wanted to use the same filter as above but only return the mpg and disp columns we would say:
+Note that you need the comma at the end in order to return all the columns and not cause an error.  If you wanted to control the columns that were shown you could add columns to the filter as well.  If you wanted to use the same filter as above but only return the mpg and disp columns, you would type:
 
 ```{r}
 cars[cars$mpg>20 & cars$disp < 150,c("mpg", "disp")]
 ```
 
-Perhaps we want to keep our filter as a variable and then look at different columns from that.
+Perhaps you want to keep our filter as a variable and then look at different columns from that:
 
 ```{r}
 x <- cars[cars$mpg>20 & cars$disp < 150,]
@@ -106,13 +107,13 @@ hist(x$wt)
 ```
 
 ###Adding new columns
-We can always see what the columns in our Data Frame are named by using the names() function.
+You can always see what the columns in our Data Frame are named by using the **names()** function.
 
 ```{r}
 names(cars)
 ```
 
-But perhaps we want to create a new column.  Let's say we want to create our own column that is the horsepower of the engine divided by the displacement.  We think this will give us a good measure of the efficieny of the engine which we would like to plot against mpg.
+But perhaps you want to create a new column.  Let's say you want to create our own column that is the horsepower of the engine divided by the displacement.  you think this will give us a good measure of the efficiency of the engine which you would like to plot against mpg.
 
 ```{r}
 cars$hpOverDisp <- cars$hp / cars$disp
@@ -120,14 +121,14 @@ names(cars)
 cars$hpOverDisp
 ```
 
-We can also combine our new column with our previous filter to make the value of the hpOverDisp column equal to 10 for any car that fits the filter as such:
+you can also combine our new column with our previous filter to make the value of the hpOverDisp column equal to 10 for any car that fits the filter as such:
 
 ```{r}
 cars[cars$mpg>20 & cars$disp < 150,"hpOverDisp"] <- 2
 cars$hpOverDisp
 ```
 
-Notice the changes?  Then as a preview for the next tutorial on plotting I'll show you how we can very quickly break up data so that we can view the hpOverDisp vs miles per gallon broken up on separate graphs based on cylinder count.
+Notice the changes?  In the next tutorial on plotting, I'll show you how you can quickly split up data so that you can view the hpOverDisp vs miles per gallon broken up on separate graphs based on cylinder count, as shown below.
 
 ```{r}
 library(lattice)
@@ -135,4 +136,4 @@ xyplot(mpg ~ hpOverDisp | factor(cyl), data=cars)
 
 ```
 
-The first plot is mpg vs hpOverDisp for all 4 cylinder cars, the second is for 6 cylinder cars and the third is four 8 cylinder cars.  It appears that all 4 cylinder cars met our filter of having mpg > 20 and disp < 150 since those are the only values on all plots that have a hpOverDisp equal to 2.
+The first plot is mpg vs hpOverDisp for all 4 cylinder cars, the second is for 6 cylinder cars, and the third is for 8 cylinder cars.  It appears that all 4 cylinder cars met our filter of having mpg > 20 and disp < 150 since those are the only values on all plots that have a hpOverDisp equal to 2.
