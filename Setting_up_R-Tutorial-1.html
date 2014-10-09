@@ -63,36 +63,36 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="what-is-r" class="section level2">
 <h2>What is R?</h2>
-<p>R is a very powerful open source statistical programming language that allows for robust and reproducible data analysis. R can handle files much larger than Excel (I have loaded over 1 GB of data into R for analysis) and allows your data analysis to be reproducible. Creating reproducible analyses prevents the problem of not looking at a project for six months, getting new data and trying to remember what manual steps were used in order to carry out the analysis. That is, anyone can extract the same output from your analysis without having to have any errors caused by manual steps such as filtering out a given column. I think you will find the use of R extremely valuable in performing higher quality data analysis.</p>
+<p>R is a very powerful open source statistical programming language that allows for robust and reproducible data analysis. R can handle files much larger than Excel (I have loaded over 1 GB of data into R for analysis) and allows your data analysis to be reproducible. Creating reproducible analyses prevents the problem of being away from a project for six months, getting new data and having to try to remember what manual steps were used in order to carry out the analysis. That is, anyone can extract the same output from your analysis without experiencing any errors caused by manual steps such as filtering out a given column. I think you will find the use of R extremely valuable in performing higher quality data analysis.</p>
 </div>
 <div id="installing-r" class="section level2">
 <h2>Installing R</h2>
 <p>To install R, visit this web address:</p>
 <p><a href="http://cran.rstudio.com/">http://cran.rstudio.com/</a></p>
-<p>and select the appropriate operating system that you are using. Then following the instructions. This will give you the shell of R which can run any myriad of R code.</p>
+<p>Select the appropriate operating system that you are using and follow the instructions. This will give you the shell of R which can run any myriad of R code.</p>
 </div>
 <div id="installing-rstudio" class="section level2">
 <h2>Installing RStudio</h2>
-<p>While it nice to run code just with R, it is much better to develop code and perform data anlysis in an Integrated Development Environment (IDE). The best IDE for R is called RStudio and can be downloaded here:</p>
+<p>While it nice to run code just with R, it is much better to develop code and perform data analysis in an Integrated Development Environment (IDE). The best IDE for R is called RStudio and can be downloaded here:</p>
 <p><a href="http://www.rstudio.com/products/rstudio/#Desk">http://www.rstudio.com/products/rstudio/#Desk</a></p>
 <p>RStudio has four main windows:</p>
 <ol style="list-style-type: decimal">
-<li>The top left window is where you can view and edit code files. You can also run code file from here by clicking the run button in the upper right. Alternatively you can bring variables into your environment by pressing the source button.</li>
+<li>The top left window is where you can view and edit code files. You can also run code file from here by clicking the “Run”&quot; button in the upper right. Alternatively you can bring variables into your environment by pressing the source button.</li>
 <li>The bottom left window is an R console where you can run R commands, install packages and test code.</li>
-<li>The top right window displays the current variables in your environment. Clicking on a variable will preview you it in the first window. There is also a history tab in this window so you can see what commands have been entered in the R console (bottom left window).</li>
-<li>The bottom right window contains a directory navigation system. Using this system you can change your working directory and open files into the top left editor window. Any plots that are not saved, will also be previewed in this window.</li>
+<li>The top right window displays the current variables in your environment. Clicking on a variable will show a preview in the first window. There is also a history tab in this window so you can see what commands have been entered in the R console (bottom left window).</li>
+<li>The bottom right window contains a directory navigation system. Using this system, you can change your working directory and open files into the top left editor window. Any plots that are not saved will also be previewed in this window.</li>
 </ol>
 </div>
 <div id="installing-packages-for-r" class="section level2">
-<h2>Installing packages for R</h2>
-<p>From what we have downloaded so far, we have a somewhat limited shell of R commands available to us. In order to greatly increase the usefulness and power of R, we need to install what are called packages. Packages are libraries of software code that contain groups of commands that we can use. Anyone can build and deploy R packages including you! The entire list of R packages that have been deployed to CRAN (the makers of RStudio) can be found here:</p>
+<h2>Installing Packages for R</h2>
+<p>After installing R and RStudio, you have a somewhat limited shell of R commands available to us. In order to greatly increase the usefulness and power of R, you need to install additional packages. Packages are libraries of software code that contain groups of commands that yo can use. Anyone can build and deploy R packages including you! The entire list of R packages that have been deployed to CRAN (the makers of RStudio) can be found here:</p>
 <p><a href="http://cran.rstudio.com/">http://cran.rstudio.com/</a></p>
-<p>However, we will install only a few that will be very helpful for performing better data analysis.</p>
-<p>We can load in the necessary packages as such (you can copy and paste this code into the R console of RStudio). Note that in order to install a package you must quotes around the name.</p>
+<p>I suggest that you install the following packages that will be very helpful for performing better data analysis. Some of these packages will be required to follow along with other tutorials as well.</p>
+<p>You can load in the necessary packages as shown below (copy and paste this code into the R console of RStudio). Note that in order to install a package you must put quotes around the name.</p>
 <pre class="r"><code>install.packages(c(&quot;devtools&quot;, &quot;lattice&quot;, &quot;ggplot2&quot;, &quot;reshape2&quot;, 
                    &quot;plyr&quot;, &quot;slidify&quot;, &quot;knitr&quot;, &quot;swirl&quot;))</code></pre>
-<p>The devtools packages contains a lot of dependencies that are used in many R packages. The lattice and ggplot2 packages are very powerful graphing packages that will be used in tutorials to follow. The reshape2 and plyr packages are very useful for transforming data. Slidify and knitr are packages used for presenting information. Slidify allows you to make a slide deck in R, which can allow you to update the data in a presentation seamlessly (since the R code is embedded). Knitr is similar to Slidify except instead of slides it creates markdown and html documents, which can be exported to PDFs. This document you are using was created with knitr. Swirl is an optional package that teaches you how to program in R interactively.</p>
-<p>Even though we have installed all of the packages, they still needed to be loaded into the system in order to be used. Unlike the install.packages command, quotes are not needed when loading a library. Also, each package must be loaded separately. Let’s load them now:</p>
+<p>The <em>devtools</em> package contains a lot of dependencies that are used in many R packages. The <em>lattice</em> and <em>ggplot2</em> packages are very powerful graphing packages that will be used in tutorials to follow. The <em>reshape2</em> and <em>plyr</em> packages are very useful for transforming data. <em>Slidify</em> and <em>knitr</em> are packages used for presenting information. <em>Slidify</em> allows you to make a slide deck in R, which can allow you to update the data in a presentation seamlessly (since the R code is embedded). <em>Knitr</em> is similar to <em>Slidify</em> except instead of slides it creates markdown and html documents, which can be exported to PDFs. This article you are reading was created with <em>knitr</em>. <em>Swirl</em> is an optional package that teaches you how to program in R interactively.</p>
+<p>After you have installed all of the packages, they still need to be loaded into the system in order to be used. Unlike the <strong>install.packages()</strong> command, quotes are not needed when loading a library. Also, each package must be loaded separately. Here is how you load them:</p>
 <pre class="r"><code>library(devtools)
 library(lattice)
 library(ggplot2)
@@ -107,29 +107,29 @@ library(knitr)
 library(swirl)</code></pre>
 </div>
 <div id="a-quick-primer-on-r" class="section level2">
-<h2>A quick primer on R</h2>
+<h2>A Quick Primer on R</h2>
 <p>For users familiar with other programming languages such as Matlab or Python, there are two main differences to R than to most other languages. Remembering these will prevent a lot of early headaches.</p>
 <ol style="list-style-type: decimal">
-<li>When assigning values to variables most languages use ‘=’, such as x = 2. However in R, one must use ‘&lt;-’ as in x &lt;- 2. This may take some getting used to. Alternatively you can also assign values in reverse such as 2 -&gt; x.</li>
-<li>In order to create arrays instead of using ‘[]’ as in [1,2,3] one must use ‘c()’ as in c(1,2,3).</li>
+<li>When assigning values to variables, most languages use ‘=’, such as x = 2. However in R, one must use ‘&lt;-’ as in x &lt;- 2. This may take some getting used to. Alternatively you can also assign values in reverse such as 2 -&gt; x.</li>
+<li>In order to create arrays instead of using ‘[]’ as in [1,2,3], one must use <strong>c()</strong> as in c(1,2,3).</li>
 </ol>
-<p>So if we wanted to store an array for future use we could type</p>
+<p>So if you want to store an array for future use, you would type:</p>
 <pre class="r"><code>x &lt;- c(1,2,3)</code></pre>
-<p>If we wanted to add 1 to each element we would type</p>
+<p>If you wanted to add 1 to each element:</p>
 <pre class="r"><code>x + 1</code></pre>
 <pre><code>## [1] 2 3 4</code></pre>
-<p>or if wanted to keep using x + 1 we would type</p>
+<p>Or if you wanted to keep using x + 1:</p>
 <pre class="r"><code>y &lt;- x + 1
 y</code></pre>
 <pre><code>## [1] 2 3 4</code></pre>
-<p>or to overwrite x</p>
+<p>Or to overwrite x:</p>
 <pre class="r"><code>x &lt;- x + 1
 x</code></pre>
 <pre><code>## [1] 2 3 4</code></pre>
 <pre class="r"><code>x+y</code></pre>
 <pre><code>## [1] 4 6 8</code></pre>
-<p>At any point in time if you are unsure of how a function works you can add a ‘?’ in front of the function name. For instance if we wanted to see details on the histogram function ‘hist’ we would type <strong>?hist</strong>. Unfortunately, the help contents will not show up in this document.</p>
-<p>Lastly, when working with files you will want to make sure you set what is known as your working directory. You can use this with the <strong>setwd()</strong> command, such as <strong>setwd(“C:/Documents/Data.csv”)</strong>. Alternatively, in the lower right window of RStudio, under the Files tab there is a gear symbol with ‘More’ label. Clicking on this button allows you to select the option of <em>‘Set as Working Directory’</em>. Just navigate to your selected directory and then use this option.</p>
+<p>At any point in time if you are unsure of how a function works you can add a ‘?’ in front of the function name. For instance, if you wanted to see details on the histogram function ‘hist’ you would type <strong>?hist</strong>. Unfortunately, the help contents will not show up in this document to show you an example.</p>
+<p>Lastly, when working with files, you will want to make sure you set your working directory. You can use this with the <strong>setwd()</strong> command, such as <strong>setwd(“C:/Documents/Data.csv”)</strong>. Alternatively, in the lower right window of RStudio, under the Files tab, there is a gear symbol with a ‘More’ label. Clicking on this button allows you to select the option of <em>‘Set as Working Directory’</em>, navigate to your selected directory and then use this option.</p>
 </div>
 </div>
 

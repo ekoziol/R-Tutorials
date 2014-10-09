@@ -5,8 +5,9 @@
 ```{r}
 library(lattice)
 library(ggplot2)
+library(reshape2)
 haunches <- read.csv("Examples/Example_2_Data/Haunches.csv", header=FALSE)
-names(haunches) <- c("id", "haunchid", "bent", "span", "haunch", "currentRepair", "specifiedRepair", "differentStates", "itemsComplete", "Stage", "inRepairSet", "inspected")
+names(haunches) <- c("bent", "currentRepair", "differentStates","haunch", "haunchid", "id", "inRepairSet", "inspected",  "itemsComplete", "span", "specifiedRepair", "Stage")
 
 haunchesInRepairs <- haunches[haunches$inRepairSet == 1,]
 ```
@@ -17,6 +18,16 @@ WJE is overseeing repairs of elevated rails and needs to understand the status o
 
 #Solution
 WJE created a digital inspection system for field inspectors to track the completion of repairs.  While the data collection system is robust, the reporting mechanisms are not.  The data is routinely exported into R for digestion of analysis and tracking of progress.
+```{r, echo=FALSE}
+repairStagesMelt <- melt(haunchesInRepairs[,c("bent", "Stage", "currentRepair")], id.vars=c("bent", "currentRepair"))
+repairStagesMelt$value <- as.factor(repairStagesMelt$value)
+
+```
+
+```{r, fig.height=300, message = FALSE, warnings = FALSE}
+ggplot(repairStagesMelt, aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 2)
+```
+
 
 ```{r, fig.height=100}
 #names(septaRepairs)
@@ -30,7 +41,7 @@ ggplot(data=haunchesInRepairs, aes(x=currentRepair, fill=currentRepair)) + geom_
 ```
 
 ```{r}
-library(reshape2)
+
 library(scales)
 haunchesMelt <- melt(haunchesInRepairs[,c("bent", "Stage")], id.vars="bent")
 head(haunchesMelt,10)
@@ -38,3 +49,4 @@ str(haunchesMelt)
 haunchesMelt$value <- as.factor(haunchesMelt$value)
 str(haunchesMelt)
 ```
+
