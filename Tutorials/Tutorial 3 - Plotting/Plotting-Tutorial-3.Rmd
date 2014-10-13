@@ -27,8 +27,27 @@ head(mixtures,10)
 
 In order to view the top ten rows to get a feel for the data we can use the **head(*dataframe*,*number of rows*)** command.
 
+Before we get started let's add some additional columns that will help us breakdown the data better.  We'll create a total cementitious column, a water to cementitious ratio and a compressive strength column in psi since the data is given in MPa.
 
-#Plotting systems in R
+```{r}
+mixtures$cementitious <- mixtures$Cement + mixtures$BlastFurnaceSlag
+```
+#Plott
+
+ing systems in R
 
 There are three main plotting systems in R - Base, Lattice and ggplot2.  The Base plotting system runs out of the box on R, while the lattice and ggplot2 plotting systems need to be loaded with the appropriate library - **libray(lattice)** and **library(ggplot2)**.
 
+
+##Base Plotting System
+The base plotting system in R is the standard, basic graphing package.  
+
+
+
+##Lattice Plotting System
+
+The lattice plotting system is best used when you need to construct many conditional plots very quickly.  That is you want to see *x* vs *y* across *z* levels.
+
+
+##Ggplotting System
+The ggplotting system is a cross between the base and lattice plotting systems.
