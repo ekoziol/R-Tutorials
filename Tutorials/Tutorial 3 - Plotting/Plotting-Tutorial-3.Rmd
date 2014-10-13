@@ -30,18 +30,106 @@ In order to view the top ten rows to get a feel for the data we can use the **he
 Before we get started let's add some additional columns that will help us breakdown the data better.  We'll create a total cementitious column, a water to cementitious ratio and a compressive strength column in psi since the data is given in MPa.
 
 ```{r}
-mixtures$cementitious <- mixtures$Cement + mixtures$BlastFurnaceSlag
+mixtures$cementitious <- mixtures$Cement + mixtures$BlastFurnaceSlag + mixtures$FlyAsh
+mixtures$wcm <- mixtures$Water/ mixtures$cementitious
+mixtures$compstrpsi <- mixtures$CompressiveStrength * 145.0377
 ```
-#Plott
-
-ing systems in R
+#Plotting systems in R
 
 There are three main plotting systems in R - Base, Lattice and ggplot2.  The Base plotting system runs out of the box on R, while the lattice and ggplot2 plotting systems need to be loaded with the appropriate library - **libray(lattice)** and **library(ggplot2)**.
 
+Entering the commands that follow will create the plots in RStudio's plotting viewer.  In order to save the plot as an image, you will have to use a plotting device which is described near the end of this document.
+
 
 ##Base Plotting System
-The base plotting system in R is the standard, basic graphing package.  
+The base plotting system in R is the standard, basic graphing package.  If you need to make quick plots to examine the data or need to perform some simple graphing, the base plotting package is what you should use.  You can think of the base plotting system as starting from a basic plotting and then adding pieces on.  While you can add pieces, you can't take any away, much like a painter creating a painting.  For instance if you want to see a histogram of the compressive strengths in psi you just type:
 
+```{r}
+hist(mixtures$compstrpsi)
+```
+
+If we wanted to change the title we add a **main** option inside of **hist()**.  To change the X and Y labels we add **xlab** and **ylab** options as well.
+
+```{r}
+hist(mixtures$compstrpsi, main="Histogram of Compressive Strengths", xlab="Compressive Strength (psi)", ylab="Count")
+```
+
+If you wanted to see a scatter plot of compressive strength vs water/cement ratio just type:
+
+```{r}
+plot(mixtures$wcm, mixtures$compstrpsi)
+```
+
+We can adjust the point type with **pch** option.  The full list of pch options is as follows:
+
+
+* pch=0,square
+* pch=1,circle
+* pch=2,triangle point up
+* pch=3,plus
+* pch=4,cross
+* pch=5,diamond
+* pch=6,triangle point down
+* pch=7,square cross
+* pch=8,star
+* pch=9,diamond plus
+* pch=10,circle plus
+* pch=11,triangles up and down
+* pch=12,square plus
+* pch=13,circle cross
+* pch=14,square and triangle down
+* pch=15, filled square blue
+* pch=16, filled circle blue
+* pch=17, filled triangle point up blue
+* pch=18, filled diamond blue
+* pch=19,solid circle blue
+* pch=20,bullet (smaller circle)
+* pch=21, filled circle red
+* pch=22, filled square red
+* pch=23, filled diamond red
+* pch=24, filled triangle point up red
+* pch=25, filled triangle point down red
+
+For instance if you wanted to use *plus signs* instead of the *Circles* you would set the option **pch = 3** as follows:
+
+```{r}
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)")
+```
+
+We can then add a linear regression line with:
+
+```{r}
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)")
+abline(lm(mixtures$compstrpsi ~ mixtures$wcm))
+```
+
+#### Aside: Linear Regression
+Since R is a statisical programming language, it has many built in statistical functions.  One of those functions is linear regression, which is specified by the **lm()** function.  The format is **lm(*y*~*x*)**.  So with the case above for compressive strength vs w/cm type:
+
+```{r}
+lm(mixtures$compstrpsi ~ mixtures$wcm)
+```
+
+This outputs the intercept and the slope for current dependent variable.  We can also make this a multivariate approach with:
+
+```{r}
+lm(mixtures$compstrpsi ~ mixtures$wcm + mixtures$Age)
+```
+
+#### Back to Base Plotting
+
+Finally if we wanted view the different ages of the concrete within the Compressive Strength vs W/CM plot we add the **col** option and specify the field (col stands for color).
+
+```{r}
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
+```
+
+Unfortunately, we can't really tell what all of these colors mean so we need to add a legend.  
+```{r}
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
+
+legend(x = 0, y = 0, legend = levels(mixtures$Age), col = c(1:length(unique(mixtures$Age))), pch = 3)
+```
 
 
 ##Lattice Plotting System
@@ -51,3 +139,9 @@ The lattice plotting system is best used when you need to construct many conditi
 
 ##Ggplotting System
 The ggplotting system is a cross between the base and lattice plotting systems.
+
+
+##Saving plots
+
+#Final Thoughts
+This has been meant as a primer for the plotting systems in R.  There are many other great tutorials online and most questions have typically been answered in other places such as Stackoverflow.com.  I find you can make great strides just by reading the documentation, reading examples, or googling "r plotting " plus whatever your question or issue is.
