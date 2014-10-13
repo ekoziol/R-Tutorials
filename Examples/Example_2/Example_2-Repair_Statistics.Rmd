@@ -19,7 +19,8 @@ haunches <- read.csv("Haunches.csv", header=FALSE)
 names(haunches) <- c("bent", "currentRepair", "differentStates","haunch", "haunchid", "id", "inRepairSet", "inspected",  "itemsComplete", "span", "specifiedRepair", "Stage")
 
 haunchesInRepairs <- haunches[haunches$inRepairSet == 1,]
-
+haunchesInRepairs[1,"Stage"] <- 3
+haunchesInRepairs[2, "Stage"] <- 4
 ```
 
 ```{r, echo=FALSE, message = FALSE, warnings = FALSE}
@@ -29,7 +30,7 @@ repairStagesMelt$value <- revalue(repairStagesMelt$value, c("0"="Not Yet Started
 ```
 
 ```{r,  fig.height = 76, message = FALSE, warnings = FALSE}
-ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs")
+ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs") + labs(fill="Repair Status")
 ```
 
 
@@ -71,10 +72,10 @@ repairStagesMelt$value <- as.factor(repairStagesMelt$value)
 repairStagesMelt$value <- revalue(repairStagesMelt$value, c("0"="Not Yet Started", "1"="Stage 1 Complete", "2" = "Stage 2 Complete", "3" = "Stage 3 Complete", "4" = "Stage 4 Complete", "5" = "Stage 5 complete", "6" = "Repair Completed with WJE Approval"))
 ```
 
-After our data is in the format we want, we can now begin plotting.  We will use the ***ggplot2*** package for plotting since it readily creates complex graphics in a presentable format.  Constructing a **ggplot** graphic can be thought of as creating a base graphic and then adding new features to it.  We use the **ggplot()** command first. This command generates the groundwork for our plot based on the data represented by **repairStagesMelt[repairStagesMelt$bent < 220,]**, which is filtering our data to limit the number of rows for the plot.  We also have a sub-function called **aes()** that maps data to visual properties.  In this instance we want our *x* values to be the *currentRepair* type and the color *fill* of the graph to be the *value* column of our data.  Next we add the **geom_bar()** function which will create a histogram of our data.  Additionally, since we specified *x* as the *currentRepair*, it will create a stacked bar graph for each repair type.  That is to say that if we have a repair type that has 2 counts of Stage 1 Complete and 3 counts of Stage 5 Complete, the entire bar will be 5 units long with two segments: one 2 units long and the other 3 units long.  We then add text under each bar using **geom_text()** to give a repair label to each bar.  Normally the X-axis label could just be used but since our graphic is so large, it allows us to readily know what each bar means.  The **facet_wrap()** function is very powerful because it takes the data and splits it up by whichever column we choose.  In this instance, we chose the *bent* data column which creates a separate graph within our plot for each individual bent.  The effect is that we will have a stacked bar histogram of the repair types and status broken down at the bent level.  We then rename the x and y labels with **xlab()** and **ylab()** for better formatting.
+After our data is in the format we want, we can now begin plotting.  We will use the ***ggplot2*** package for plotting since it readily creates complex graphics in a presentable format.  Constructing a **ggplot** graphic can be thought of as creating a base graphic and then adding new features to it.  We use the **ggplot()** command first. This command generates the groundwork for our plot based on the data represented by **repairStagesMelt[repairStagesMelt$bent < 220,]**, which is filtering our data to limit the number of rows for the plot.  We also have a sub-function called **aes()** that maps data to visual properties.  In this instance we want our *x* values to be the *currentRepair* type and the color *fill* of the graph to be the *value* column of our data.  Next we add the **geom_bar()** function which will create a histogram of our data.  Additionally, since we specified *x* as the *currentRepair*, it will create a stacked bar graph for each repair type.  That is to say that if we have a repair type that has 2 counts of Stage 1 Complete and 3 counts of Stage 5 Complete, the entire bar will be 5 units long with two segments: one 2 units long and the other 3 units long.  We then add text under each bar using **geom_text()** to give a repair label to each bar.  Normally the X-axis label could just be used but since our graphic is so large, it allows us to readily know what each bar means.  The **facet_wrap()** function is very powerful because it takes the data and splits it up by whichever column we choose.  In this instance, we chose the *bent* data column which creates a separate graph within our plot for each individual bent.  The effect is that we will have a stacked bar histogram of the repair types and status broken down at the bent level.  We then rename the x and y labels with **xlab()** and **ylab()** for better formatting.  We change the legend title with **labs()** to change the default legend title.
 
 ```{r,  fig.height = 76, message = FALSE, warnings = FALSE, eval=FALSE}
-ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs")
+ggplot(repairStagesMelt[repairStagesMelt$bent < 220,], aes(x=currentRepair, fill=value)) + geom_bar() + geom_text(aes(y=-0.5, label = currentRepair)) + facet_wrap(~bent, ncol = 1) + xlab("Repair Type") + ylab("Number of Repairs") + labs(fill="Repair Status")
 ```
 
 Now we have a script that can be run daily, weekly, or monthly to generate many plots of our data, bringing clarity to our issue.  We just have to export the data from our digital inspection system and run the script to output the plots.  For a small amount of effort, we created a very powerful status report that requires very little future effort.  I hope this example helps you can see the power of R's plotting capabilities in better understanding your data.
