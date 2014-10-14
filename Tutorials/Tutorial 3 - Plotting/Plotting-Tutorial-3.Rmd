@@ -92,13 +92,13 @@ We can adjust the point type with **pch** option.  The full list of pch options 
 
 For instance if you wanted to use *plus signs* instead of the *Circles* you would set the option **pch = 3** as follows:
 
-```{r}
+```{r, fig.width = 8, fig.height=7}
 plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)")
 ```
 
 We can then add a linear regression line with:
 
-```{r}
+```{r, fig.width = 8, fig.height=7}
 plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)")
 abline(lm(mixtures$compstrpsi ~ mixtures$wcm))
 ```
@@ -120,15 +120,18 @@ lm(mixtures$compstrpsi ~ mixtures$wcm + mixtures$Age)
 
 Finally if we wanted view the different ages of the concrete within the Compressive Strength vs W/CM plot we add the **col** option and specify the field (col stands for color).
 
-```{r}
+```{r, fig.width = 8, fig.height=7}
 plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
 ```
 
-Unfortunately, we can't really tell what all of these colors mean so we need to add a legend.  
-```{r}
-plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
+Unfortunately, you can't really tell what all of these colors mean so a legend will need to be added.  Also, the point type should be reverted back to circles.  The **legend()** function has many options and the full list can be viewed here https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/legend.html or by typing **?legend** in RStudio.  Only three options are required for the **legend()** function: **x**, **y**, and **legend**. The **x** and **y** options are the location of the upper left corner of the legend, in the plot coordinates.  Thus, you are placing the legend at a w/cm = 0.83 and a Compressive Strength (psi) = 12000.  
 
-legend(x = 0, y = 0, legend = levels(mixtures$Age), col = c(1:length(unique(mixtures$Age))), pch = 3)
+```{r, fig.width = 8, fig.height=7}
+
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 1, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
+
+
+legend(x = 0.83 , y = 12000, legend = levels(factor(unique(mixtures$Age))), col = c(1:length(levels(factor(unique(mixtures$Age))))), pch = 1, title = "Age (days)")
 ```
 
 
