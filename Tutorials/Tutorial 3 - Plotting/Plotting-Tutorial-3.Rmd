@@ -1,6 +1,6 @@
 
 #Better Data Analysis with R
-##Plotting
+##Plotting Systems
 ###*Eric Koziol*
 
 
@@ -93,13 +93,13 @@ We can adjust the point type with **pch** option.  The full list of pch options 
 For instance if you wanted to use *plus signs* instead of the *Circles* you would set the option **pch = 3** as follows:
 
 ```{r, fig.width = 8, fig.height=7}
-plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)")
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs w/cm", xlab="w/cm", ylab="Compressive Strength (psi)")
 ```
 
 We can then add a linear regression line with:
 
 ```{r, fig.width = 8, fig.height=7}
-plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)")
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs w/cm", xlab="w/cm", ylab="Compressive Strength (psi)")
 abline(lm(mixtures$compstrpsi ~ mixtures$wcm))
 ```
 
@@ -118,33 +118,131 @@ lm(mixtures$compstrpsi ~ mixtures$wcm + mixtures$Age)
 
 #### Back to Base Plotting
 
-Finally if we wanted view the different ages of the concrete within the Compressive Strength vs W/CM plot we add the **col** option and specify the field (col stands for color).
+Finally if we wanted view the different ages of the concrete within the Compressive Strength vs w/cm plot we add the **col** option and specify the field (col stands for color).
 
 ```{r, fig.width = 8, fig.height=7}
-plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 3, main = "Compressive Strength vs w/cm", xlab="w/cm", ylab="Compressive Strength (psi)", col = mixtures$Age)
 ```
 
-Unfortunately, you can't really tell what all of these colors mean so a legend will need to be added.  Also, the point type should be reverted back to circles.  The **legend()** function has many options and the full list can be viewed here https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/legend.html or by typing **?legend** in RStudio.  Only three options are required for the **legend()** function: **x**, **y**, and **legend**. The **x** and **y** options are the location of the upper left corner of the legend, in the plot coordinates.  Thus, you are placing the legend at a w/cm = 0.83 and a Compressive Strength (psi) = 12000.  
+Unfortunately, you can't really tell what all of these colors mean so a legend will need to be added.  Also, the point type should be reverted back to circles.  The **legend()** function has many options and the full list can be viewed here https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/legend.html or by typing **?legend** in RStudio.  Only three options are required for the **legend()** function: **x**, **y**, and **legend**. The **x** and **y** options are the location of the upper left corner of the legend, in the plot coordinates.  Thus, you are placing the legend at a w/cm = 0.83 and a Compressive Strength (psi) = 12000.  Next, the values to be displayed inside the legend need to be defined.  The **legend** option is set equal to the **levels()** function.  The **levels()** function returns and ordered list of all of the unique values of a factor variable.  Since the *mixtures\$Age* variable is numeric, we convert it to a factor variable with the **factor()** function.  Thus, setting the option **legend = levels(factor(mixtures\$Age))** will create a legend item for each of the unique values of *mixtures$Age*.  The colors for each legend item then need to be defined with the **col** option otherwise they will just appear black.  The simplest way to denote colors is with an array of integers.  For this example we want to create an array of 1 to whatever the length of the unique value ages are.  The latter value can be obtained by using our nested **levels(factor())** function from earlier combined with the **length()** function.  In R we can create a range array by using **x:y** that is typing **1:5** will create:
+
+```{r}
+1:5
+```
+
+Therefore, in order to create a color array for this plot, type **col = c(1:length(levels(factor(mixtures$Age))))**.  To revert the point style back to circles use **pch = 1**.  Then finish off by adding a title legend with the **title** option.
 
 ```{r, fig.width = 8, fig.height=7}
 
-plot(mixtures$wcm, mixtures$compstrpsi, pch = 1, main = "Compressive Strength vs W/CM", xlab="W/CM", ylab="Compressive Strength (psi)", col = mixtures$Age)
+plot(mixtures$wcm, mixtures$compstrpsi, pch = 1, main = "Compressive Strength vs w/cm", xlab="w/cm", ylab="Compressive Strength (psi)", col = mixtures$Age)
 
 
-legend(x = 0.83 , y = 12000, legend = levels(factor(unique(mixtures$Age))), col = c(1:length(levels(factor(unique(mixtures$Age))))), pch = 1, title = "Age (days)")
+legend(x = 0.83 , y = 12000, legend = levels(factor(mixtures$Age)), col = c(1:length(levels(factor(mixtures$Age)))), pch = 1, title = "Age (days)")
 ```
 
 
 ##Lattice Plotting System
 
-The lattice plotting system is best used when you need to construct many conditional plots very quickly.  That is you want to see *x* vs *y* across *z* levels.
+The lattice plotting system is best used when you need to construct many conditional plots very quickly.  That is you want to see *x* vs *y* across *z* levels. The downside of the lattice system is that the entire plot must be written in one line, parts cannot be added after plotting.  In order to use the lattice plotting system, the lattice library first needs to be loaded.
+
+```{r}
+library(lattice)
+```
+
+If you wanted to take the previous plot of Compressive Strength compared to w/cm based on Age, you could break each age group into its own graph as follows:
+
+```{r, fig.width = 8, fig.height=7}
+xyplot(compstrpsi ~ wcm | Age, data=mixtures)
+```
+
+What just happened there?  Very simply, a very complex plot was created.  The lattice **xyplot()**  function handles this complexity from a few inputs.  The first input is **y ~ x**.  Since you want the Compressive Strength on the y-axis and the w/cm on the x-axis, type **compstrpsi ~ wcm**.  Note, that since we do not *need* to use the notation of *dateframe$column* such as *mixtures$compstrpsi* and *mixtures$wcm* because we define the data to use later. We then place a **|** symbol (called a pipe) after **wcm**.  Using the **|** tells the **xyplot()** function to start breaking down the data of the variables placed before the **|** based on the variables that follow after the **|**.  Lastly,  the **data** option defines the data frame that you would like to use for plotting. This allows the use of column names without an associated data frame in the **lattice** functions.
+
+You may have noticed how the value of the *Age* variable is displayed by an orange progess line.  This might help if you are just looking at relative differences but if you need to know the actual value it is not helpful.  The 'progression' display occurs because the *Age* variable is numeric.  If *Age* is converted to a factor type, then the actual value will be displayed.  The x and y labels and the title can be changed similar to the base plotting system.  The only difference is that for the title you use **main** instead of **title**.
+
+```{r, fig.width = 8, fig.height=7}
+xyplot(compstrpsi ~ wcm | factor(Age), data=mixtures, xlab = "w/cm", ylab = "Compressive Strength (psi)", main="Compressive Strength vs w/cm by Age")
+```
+
+Additional color groupings can be added within each sublot.  This is performed by using the **group** option inside the lattice plot.  However, this option typically needs to use the Data Frame dollar sign notation.  For instance if you wanted to group all of the data by which mixes contained a superplasticizer you could use **group = mixtures$Superplasticizer > 0**.  Additionally, you could add a legend with the **auto.key = TRUE** option.
+
+```{r, fig.width = 8, fig.height=7}
+xyplot(compstrpsi ~ wcm | factor(Age), data=mixtures, xlab = "w/cm", ylab = "Compressive Strength (psi)", main="Compressive Strength vs w/cm by Age", group = mixtures$Superplasticizer > 0, auto.key = TRUE)
+```
+
+Look at that!  You are now able to view four dimensions of data on a two dimensional plot.  Let's move and reformat the legend.  In order to set all of the options of the legend, the inputs of the **auto.key** option need to be included in a **list()**.  The first options inputs need to be specified are the x and y coordinates of the legend which are a on range of 0 to 1.  Next we relabel the legend labels with **text = c(*labels*)**.  Finally, the title is adjusted with the **title** suboption.
+
+```{r, fig.width = 8, fig.height=7}
+xyplot(compstrpsi ~ wcm | factor(Age), data=mixtures, xlab = "w/cm", ylab = "Compressive Strength (psi)", main="Compressive Strength vs w/cm by Age", group = mixtures$Superplasticizer > 0, auto.key = list(x= 0.8, y = 0.93, text = c("Not Included", "Included"), title = "Superplasticizer" ))
+```
+
 
 
 ##Ggplotting System
-The ggplotting system is a cross between the base and lattice plotting systems.
+The ggplotting system is a cross between the base and lattice plotting systems.  It allows for portions of plots to be saved and then have pieces added.  It also has the best looking default color scheme of any plotting package.  As with the lattice plotting system, we need to load the ggplot2 library.
 
+```{r, fig.width = 8, fig.height=7}
+library(ggplot2)
+```
+
+There are two options for creating the example you have been working on.  The first is **qplot()** (short for quick-plot), which is a self contained function.  It assumes a graph type based on the data.  Additions can be made to the graph but there is an inherent lack of control due to the assumptions of the function.  If you want full control of options and additions, the **ggplot()** function must be used.  The **qplot()** function inputs are **qplot(*x*,*y*,*data*=data)**. In the **ggplot()** function, you first specify the Data Frame, followed by the **aes()** function which will manipulate the data into the suboptions specified.  In this case, set x and y axis to be equal to the *wcm* and *compstrpsi* columns of *mixtures*.  Finally, to create a scatterplot add the geom_point() function.  The additions act as you would expect.  You could save the **ggplot()** function to a variable and then add to the variable.
+
+```{r, fig.width = 8, fig.height=7}
+qplot(wcm, compstrpsi, data=mixtures)
+
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point()
+
+p <- ggplot(mixtures, aes(x=wcm, y=compstrpsi))
+p + geom_point()
+```
+
+If you wanted to change the color of the points based on the age of the mix at testing (similar to the lattice examples), you just need to add the **aes()** function inside of **geom_point()**, and set the suboption **color** equal to the column of your choice.  In this case you would use **geom_point(aes(color = Age))**.  However, as dicussed earlier, since Age is numeric the coloring will occur based on a gradient related to the value.  If instead you prefer to color each *Age* value a different color, the age must be converted to factor.  The first plot shows the gradient, while the second plot shows discrete values.
+
+```{r, fig.width = 8, fig.height=7}
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point(aes(color = Age))
+
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point(aes(color = factor(Age)))
+```
+
+Similar to the lattice example, we could break down the data so that each age value has its own plot.  In **ggplot2** these are called facets.  Adding the function **facet_wrap()** will automate the desired segmentation.  The input for the **facet_wrap()** function is a *tilde* **~** followed by the column name.  In this case **facet_wrap(~Age)**.  You can also add a linear regression line to each plot by using the **geom_smooth** function.  All that is required is the method function and formula for the input.  Here, the **lm()** function is input which is linear regression function as discussed earlier.  Note that if you do not input anything, a moving average will be computed instead as seen in the second plot.
+
+```{r, fig.width = 8, fig.height=7, message=FALSE, warning=FALSE}
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point(aes(color = factor(Age))) + facet_wrap(~Age) + geom_smooth(method='lm',formula=y~x)
+
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point(aes(color = factor(Age))) + facet_wrap(~Age) + geom_smooth()
+```
+
+Finally, in order to make the plot more presentable, the labels should be changed.  To change the x and y labels simply use the **xlab()** and **ylab()** functions with the name you wish in quotes.  To change the title add the **ggtitle()** function.  To adjust the legend title use the **scale_color_discrete()** function with the **name = "title"** option.  
+
+```{r, fig.width = 8, fig.height=7, message=FALSE, warning=FALSE}
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point(aes(color = factor(Age))) + facet_wrap(~Age) + geom_smooth(method='lm',formula=y~x) + xlab("w/cm") + ylab("Compressive Strength (psi)") + ggtitle("Compressive Strength vs w/cm by Age") + scale_color_discrete(name = "Age")
+```
 
 ##Saving plots
+
+While viewing plots is helpful, you likely need to share the plots you create.  If you aren't creating a document for reporting with **knitr** (this document was written in RStudio and created with knitr), you will have to use a printing device to save the plot.  Printing devices are functions usually called by the file type: **pdf()**, **png()**, **jpeg()**, etc.  
+
+The printer devices have three parts to their use:
+1.  Calling the printer function.  This steps requires a filename as the input.  Additionally, height, width and other saving options are input at this step.  The height and width are usually measured in pixels, except for PDFs which specify inches.
+2.  Plotting function.  This is where you place your plotting code for your graph.  
+3.  Telling the printing device to write.  This is usually signified by the **dev.off()** function and will commence writing.
+
+Most printing devices are the same, except for the file output so I will focus on using the **png()** printing device here:
+
+```{r, warning=FALSE}
+#Step 1
+png("CompstrengthVsWCM.png", height = 1000, width = 1000)
+
+#Step 2
+
+ggplot(mixtures, aes(x=wcm, y=compstrpsi)) + geom_point(aes(color = factor(Age))) + facet_wrap(~Age) + geom_smooth(method='lm',formula=y~x) + xlab("w/cm") + ylab("Compressive Strength (psi)") + ggtitle("Compressive Strength vs w/cm by Age") + scale_color_discrete(name = "Age")
+
+#Step 3
+dev.off()
+
+
+```
+
+Note that when you use a printing device, a preview of the plot will not show up in RStudio.  You will have to go to your working directory (or wherever the file was saved), in order to view the file.  Additionally, you may have to play with the output size to get the correct formatting.
 
 #Final Thoughts
 This has been meant as a primer for the plotting systems in R.  There are many other great tutorials online and most questions have typically been answered in other places such as Stackoverflow.com.  I find you can make great strides just by reading the documentation, reading examples, or googling "r plotting " plus whatever your question or issue is.
