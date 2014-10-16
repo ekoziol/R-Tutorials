@@ -100,4 +100,12 @@ At any point in time if you are unsure of how a function works you can add a '?'
 
 Lastly, when working with files, you will want to make sure you set your working directory.  You can use this with the **setwd()** command, such as **setwd("C:/Documents/Data.csv")**.  Alternatively, in the lower right window of RStudio, under the Files tab, there is a gear symbol with a 'More' label.  Clicking on this button allows you to select the option of *'Set as Working Directory'*, navigate to your selected directory and then use this option.
 
+#Additional References
 
+Here are some references that you might find useful.
+
+1.  R Reference Card: http://cran.r-project.org/doc/contrib/Short-refcard.pdf
+2.  R Tutorials from Clarkson University: http://www.cyclismo.org/tutorial/R/
+3.  4 week online R programming course on Coursera: https://www.coursera.org/course/rprog
+4.  Quick-R: http://www.statmethods.net/
+5.  An Introduction to R by CRAN: http://cran.r-project.org/doc/manuals/r-release/R-intro.html
